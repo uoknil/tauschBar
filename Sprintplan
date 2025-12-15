@@ -1,15 +1,15 @@
 Sprintplan
-Sprint 1 - 07.12.–11.12.2025
+Sprint 1 - 07.12.–18.12.2025
 Ziel: Grundsystem + Basisfunktionen bereitstellen
 User Stories: US01 – Registrierung & Login, US02 – Eintrag erstellen, US03 – Matching vorbereiten, US08 – Datenschutz (Basis), Setup Frontend/Backend
 Deliverables: Minimal lauffähiges System („Walking Skeleton“), Erste API-Endpunkte, Einträge können erstellt werden, Statusbericht 1
 
-Sprint 2 - 12.12.–18.12.2025
+Sprint 2 - 19.12.–07.01.2026
 Ziel: Kernfunktionen fertigstellen
 User Stories: US03 – Matching vollständig, US04 – Filter & Suche, US05 – Benachrichtigungen, US06 – Chat, US07 – Missbrauch melden, US08 – Datenschutz (erweitert)
 Deliverables: Matching funktionsfähig, Chat fertig, Besseres UI, Statusbericht 2
 
-Sprint 3 - 19.12.2025–08.01.2026
+Sprint 3 - 08.01.2026–15.01.2026
 Ziel: App finalisieren, Soll- und Kann-Kriterien umsetzen, Feinschliff & Präsentationsvorbereitung
 User Stories: US09 – Bewertungen, US10 – Favoritenliste, US11 – Erweiterte , US12 – Kalender-Integration, US13 – Profilbild & Beschreibung, US14 – Mehrsprachigkeit, US15–US20 – Kann-Funktionen (nach verfügbarem Zeitbudget), Bugfixing, Performanceoptimierung, Demo-Daten
 Devliverables:Funktionale Beta-Version, Alle Soll-Kriterien fertig, Einige Kann-Kriterien (je nach Aufwand), Vollständiges UI/UX, Stabile Version für Live-Demo, Demo-Szenarien & Testdaten, Präsentation für den Termin am 08.01.
