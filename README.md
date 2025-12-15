@@ -65,9 +65,9 @@ Der aktuelle Fortschritt ist im **Project Board** einsehbar:
 
 ## Meilensteine
 
-- **11.12.2025 – Sprint 1 Abschluss (online)**
-- **18.12.2025 – Sprint 2 Abschluss / Projektfortschritt**
-- **08.01.2026 – Endpräsentation / Live-Demo**
+- **18.12.2025 – Sprint 1 Abschluss (online)**
+- **08.01.2026 – Sprint 2 Abschluss / Projektfortschritt**
+- **19.01.2026 – Endpräsentation / Live-Demo**
 
 ---
 
