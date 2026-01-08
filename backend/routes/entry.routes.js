@@ -139,6 +139,7 @@ router.get('/:id/matches', requireAuth, async (req, res) => {
 
     const matches = await Entry.find({
       _id: { $ne: base._id },
+      createdBy: { $ne: base.createdBy }, // ✅ NEU: eigene Einträge ausschließen
       isBlocked: false,
       category: { $regex: `^${baseCategory}$`, $options: 'i' },
       zip: baseZip,
