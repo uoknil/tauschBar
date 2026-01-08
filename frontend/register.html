@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>tauschBar – Registrierung</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="./dashboard.html">tauschBar</a>
+
+    <div class="links">
+      <a href="./dashboard.html">Dashboard</a>
+      <a href="./login.html" id="loginLink">Login</a>
+      <button id="logoutBtn" class="linkBtn">Logout</button>
+    </div>
+  </nav>
+
+  <h1>Registrierung</h1>
+
+  <form id="registerForm" style="padding: 0 20px;">
+    <div>
+      <label>Username</label><br />
+      <input id="username" type="text" required />
+    </div>
+    <br/>
+
+    <div>
+      <label>Email</label><br />
+      <input id="email" type="email" required />
+    </div>
+    <br/>
+
+    <div>
+      <label>Passwort</label><br />
+      <input id="password" type="password" required />
+    </div>
+    <br/>
+
+    <button type="submit">Account erstellen</button>
+  </form>
+
+  <p id="msg" style="padding: 0 20px;"></p>
+
+  <p style="padding: 0 20px;">
+    Schon registriert? <a href="./login.html">Zum Login</a>
+  </p>
+
+  <script>
+    const logoutBtn = document.getElementById('logoutBtn');
+    const loginLink = document.getElementById('loginLink');
+
+    const token = localStorage.getItem('token');
+    const usernameStored = localStorage.getItem('username');
+
+    // Navbar-Logik
+    if (token && usernameStored) {
+      loginLink.style.display = 'none';
+    } else {
+      logoutBtn.style.display = 'none';
+    }
+
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      window.location.href = './login.html';
+    });
+
+    const form = document.getElementById('registerForm');
+    const msg = document.getElementById('msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = 'Registrierung...';
+
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await fetch('http://localhost:3000/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          msg.textContent = data.message || 'Registrierung fehlgeschlagen.';
+          return;
+        }
+
+        msg.textContent = 'Erfolgreich registriert ✅ Jetzt einloggen.';
+        window.location.href = './login.html';
+      } catch (err) {
+        msg.textContent = 'Netzwerkfehler. Läuft der Server?';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>tauschBar – Moderation</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="./dashboard.html">tauschBar</a>
+    <div class="links">
+      <a href="./dashboard.html">Dashboard</a>
+      <a href="./moderation.html">Moderation</a>
+    </div>
+  </nav>
+
+  <h1>Moderation – Meldungen</h1>
+
+  <div style="padding: 0 20px;">
+    <p><strong>Moderations-Token</strong> </p>
+    <input id="modToken" placeholder="MOD_TOKEN eingeben..." style="width:320px;" />
+    <button id="loadBtn">Meldungen laden</button>
+  </div>
+
+  <ul id="reports" style="margin-top:16px;"></ul>
+
+  <script>
+    const reportsUl = document.getElementById('reports');
+    const modTokenInput = document.getElementById('modToken');
+    const loadBtn = document.getElementById('loadBtn');
+
+    async function loadReports() {
+      reportsUl.innerHTML = '<li>Lade...</li>';
+
+      const modToken = modTokenInput.value.trim();
+      if (!modToken) {
+        reportsUl.innerHTML = '<li>Bitte MOD_TOKEN eingeben.</li>';
+        return;
+      }
+
+      const res = await fetch('http://localhost:3000/reports', {
+        headers: { 'X-MOD-TOKEN': modToken }
+      });
+
+      const data = await res.json().catch(() => ([]));
+
+      if (!res.ok) {
+        reportsUl.innerHTML = `<li>${data.message || 'Fehler beim Laden.'}</li>`;
+        return;
+      }
+
+      if (!data.length) {
+        reportsUl.innerHTML = '<li>Keine Meldungen vorhanden.</li>';
+        return;
+      }
+
+      reportsUl.innerHTML = '';
+
+      for (const r of data) {
+        const li = document.createElement('li');
+
+        const entryTitle = r.entryId?.title || '(Entry gelöscht?)';
+        const entryCat = r.entryId?.category || '';
+        const reporter = r.reportedBy?.username || '(unbekannt)';
+        const reportId = r._id;
+
+        li.innerHTML = `
+          <strong>Status:</strong> ${r.status}<br/>
+          <strong>Eintrag:</strong> ${entryTitle} (${entryCat})<br/>
+          <strong>Gemeldet von:</strong> ${reporter}<br/>
+          <strong>Grund:</strong> ${r.reason}<br/>
+          <strong>Details:</strong> ${r.details || '-'}<br/>
+          <small>${new Date(r.createdAt).toLocaleString()}</small><br/>
+
+          <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="blockBtn" data-id="${reportId}">Eintrag sperren</button>
+            <button class="warnBtn" data-id="${reportId}">User verwarnen</button>
+            <button class="closeBtn" data-id="${reportId}">Schließen</button>
+          </div>
+          <hr/>
+        `;
+
+        reportsUl.appendChild(li);
+      }
+    }
+
+    async function doAction(reportId, action) {
+      const modToken = modTokenInput.value.trim();
+      const note = prompt('Moderations-Notiz (optional):') || '';
+
+      let payload = { action, note };
+
+      if (action === 'blockEntry') {
+        const blockReason = prompt('Sperrgrund (optional):') || '';
+        payload.blockReason = blockReason;
+      }
+
+      const res = await fetch(`http://localhost:3000/reports/${reportId}/action`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-MOD-TOKEN': modToken
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        alert((data.message || 'Aktion fehlgeschlagen.') + (data.error ? `\n\n${data.error}` : ''));
+        return;
+      }
+
+      alert(data.message || 'OK');
+      loadReports();
+    }
+
+    reportsUl.addEventListener('click', (ev) => {
+      const btn = ev.target;
+      const id = btn.getAttribute('data-id');
+      if (!id) return;
+
+      if (btn.classList.contains('blockBtn')) return doAction(id, 'blockEntry');
+      if (btn.classList.contains('warnBtn')) return doAction(id, 'warnUser');
+      if (btn.classList.contains('closeBtn')) return doAction(id, 'close');
+    });
+
+    loadBtn.addEventListener('click', loadReports);
+  </script>
+</body>
+</html>

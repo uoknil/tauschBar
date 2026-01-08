@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>tauschBar – Login</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+    <nav class="nav">
+      <a class="brand" href="./dashboard.html">tauschBar</a>
+
+      <div class="links">
+        <span id="navUser"></span>
+        <a href="./dashboard.html">Dashboard</a>
+        <a href="./register.html">Registrieren</a>
+        <a href="./login.html" id="loginLink">Login</a>
+        <button id="logoutBtn" class="linkBtn">Logout</button>
+      </div>
+
+    </nav>
+
+  <h1>Login</h1>
+
+    <form id="loginForm">
+    <label>
+      Username oder Email<br/>
+      <input id="usernameOrEmail" type="text" required />
+    </label>
+    <br/><br/>
+
+    <label>
+      Passwort<br/>
+      <input id="password" type="password" required />
+    </label>
+    <br/><br/>
+
+    <button type="submit">Einloggen</button>
+  </form>
+
+  <p id="msg"></p>
+
+  <p>
+    Noch kein Account? <a href="./register.html">Registrieren</a>
+  </p>
+
+  <script>
+    const logoutBtn = document.getElementById('logoutBtn');
+    const loginLink = document.getElementById('loginLink');
+    const navUser = document.getElementById('navUser');
+
+    const token = localStorage.getItem('token');
+    const usernameStored = localStorage.getItem('username');
+
+    if (token && usernameStored) {
+      navUser.textContent = `Hi, ${usernameStored}`;
+      navUser.style.color = '#fff';
+      navUser.style.marginRight = '12px';
+
+      // bereits eingeloggt → Login-Link verstecken
+      loginLink.style.display = 'none';
+    } else {
+      // nicht eingeloggt → Logout verstecken & kein Hi anzeigen
+      logoutBtn.style.display = 'none';
+      navUser.textContent = '';
+    }
+
+    logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    window.location.href = './login.html';
+    });
+
+    const form = document.getElementById('loginForm');
+    const msg = document.getElementById('msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = 'Login...';
+
+      const usernameOrEmail = document.getElementById('usernameOrEmail').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await fetch('http://localhost:3000/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usernameOrEmail, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          msg.textContent = data.message || 'Login fehlgeschlagen.';
+          return;
+        }
+
+        // Token + Username speichern
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username);
+
+        msg.textContent = 'Erfolgreich eingeloggt ✅';
+        window.location.href = './dashboard.html';
+      } catch (err) {
+        msg.textContent = 'Netzwerkfehler. Läuft der Server?';
+      }
+    });
+  </script>
+</body>
+</html>
