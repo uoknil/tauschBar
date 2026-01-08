@@ -9,9 +9,7 @@ function requireAuth(req, res, next) {
       return res.status(401).json({ message: 'Kein Token.' });
     }
 
-    const payload = jwt.verify(token, process.env.JWT_SECRET, {
-      issuer: 'tauschBar'
-    });
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
     req.user = payload; // { userId, username, iat, exp }
     next();
   } catch (err) {
