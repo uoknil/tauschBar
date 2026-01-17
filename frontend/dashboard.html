@@ -1,134 +1,166 @@
 <!doctype html>
 <html lang="de">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>tauschBar – Dashboard</title>
-  <link rel="stylesheet" href="./style.css" />
-</head>
-<body>
-  <nav class="nav">
-    <a class="brand" href="./dashboard.html">tauschBar</a>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>tauschBar – Dashboard</title>
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./style2.css" />
+  </head>
+  <body>
+    <nav class="nav">
+      <a class="brand" href="./dashboard.html">tauschBar</a>
 
-    <div class="links">
-      <a href="./dashboard.html">Dashboard</a>
-      <a href="./create-entry.html">Neuer Eintrag</a>
-      <a href="./profile.html">Profil</a>
-      <a href="./login.html" id="loginLink">Login</a>
-      <button id="logoutBtn" class="linkBtn">Logout</button>
+      <div class="links">
+        <a href="./dashboard.html">Dashboard</a>
+        <a href="./create-entry.html">Neuer Eintrag</a>
+        <a href="./profile.html">Profil</a>
+        <a href="./login.html" id="loginLink">Login</a>
+        <button id="logoutBtn" class="linkBtn">Logout</button>
+      </div>
+    </nav>
+
+    <h1>Dashboard</h1>
+
+    <div
+      style="
+        padding: 0 20px 10px 20px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      "
+    >
+      <button id="reloadBtn">Neu laden</button>
+      <button id="onlyMineBtn">Nur meine Einträge</button>
+      <button id="showAllBtn">Alle</button>
+      <button id="showMatchesBtn">
+        Matches anzeigen
+        <span
+          id="matchBadge"
+          style="
+            display: none;
+            margin-left: 6px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            border: 1px solid #999;
+            font-size: 12px;
+          "
+          >0</span
+        >
+      </button>
+
+      <input
+        id="searchInput"
+        placeholder="Suche (Titel/Angebot/Gesuch)..."
+        style="width: 280px"
+      />
+      <select id="categorySelect">
+        <option value="">Alle Kategorien</option>
+      </select>
+      <input id="zipInput" placeholder="PLZ..." style="width: 100px" />
+      <input id="fromInput" type="date" />
+      <input id="toInput" type="date" />
     </div>
-  </nav>
 
-  <h1>Dashboard</h1>
+    <ul id="list"></ul>
+    <h2 id="matchesTitle" style="display: none; padding: 0 20px">Matches</h2>
+    <ul id="matchesList" style="display: none; padding: 0 20px"></ul>
 
-  <div style="padding: 0 20px 10px 20px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-    <button id="reloadBtn">Neu laden</button>
-    <button id="onlyMineBtn">Nur meine Einträge</button>
-    <button id="showAllBtn">Alle</button>
-    <button id="showMatchesBtn">
-      Matches anzeigen <span id="matchBadge" style="display:none; margin-left:6px; padding:2px 6px; border-radius:10px; border:1px solid #999; font-size:12px;">0</span>
-    </button>
-    
-    <input id="searchInput" placeholder="Suche (Titel/Angebot/Gesuch)..." style="width: 280px;" />
-    <select id="categorySelect">
-      <option value="">Alle Kategorien</option>
-    </select>
-    <input id="zipInput" placeholder="PLZ..." style="width: 100px;" />
-    <input id="fromInput" type="date" />
-    <input id="toInput" type="date" />
+    <script>
+      const list = document.getElementById('list');
+      const searchInput = document.getElementById('searchInput');
+      const categorySelect = document.getElementById('categorySelect');
+      const reloadBtn = document.getElementById('reloadBtn');
+      const onlyMineBtn = document.getElementById('onlyMineBtn');
+      const showAllBtn = document.getElementById('showAllBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const loginLink = document.getElementById('loginLink');
+      const showMatchesBtn = document.getElementById('showMatchesBtn');
+      const matchesTitle = document.getElementById('matchesTitle');
+      const matchesList = document.getElementById('matchesList');
+      const zipInput = document.getElementById('zipInput');
+      const fromInput = document.getElementById('fromInput');
+      const toInput = document.getElementById('toInput');
+      const matchBadge = document.getElementById('matchBadge');
 
-  </div>
+      let onlyMine = false;
 
-  <ul id="list"></ul>
-  <h2 id="matchesTitle" style="display:none; padding: 0 20px;">Matches</h2>
-  <ul id="matchesList" style="display:none; padding: 0 20px;"></ul>
+      const currentUsername = localStorage.getItem('username');
+      const token = localStorage.getItem('token');
 
-  <script>
-    const list = document.getElementById('list');
-    const searchInput = document.getElementById('searchInput');
-    const categorySelect = document.getElementById('categorySelect');
-    const reloadBtn = document.getElementById('reloadBtn');
-    const onlyMineBtn = document.getElementById('onlyMineBtn');
-    const showAllBtn = document.getElementById('showAllBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const loginLink = document.getElementById('loginLink');
-    const showMatchesBtn = document.getElementById('showMatchesBtn');
-    const matchesTitle = document.getElementById('matchesTitle');
-    const matchesList = document.getElementById('matchesList');
-    const zipInput = document.getElementById('zipInput');
-    const fromInput = document.getElementById('fromInput');
-    const toInput = document.getElementById('toInput');
-    const matchBadge = document.getElementById('matchBadge');
-
-    let onlyMine = false;
-
-    const currentUsername = localStorage.getItem('username');
-    const token = localStorage.getItem('token');
-
-    // Login-Check + Navbar-Anzeige
-    if (!currentUsername || !token) {
-      logoutBtn.style.display = 'none';
-      window.location.href = './login.html';
-    } else {
-      loginLink.style.display = 'none';
-    }
-
-    onlyMineBtn.textContent = `Nur von ${currentUsername}`;
-
-    async function loadEntries() {
-      list.innerHTML = '<li>Lade...</li>';
-
-      let entries = [];
-      try {
-        const params = new URLSearchParams();
-
-        if (searchInput.value) params.set('q', searchInput.value.trim());
-        if (categorySelect.value) params.set('category', categorySelect.value.trim());
-        if (zipInput.value) params.set('zip', zipInput.value.trim());
-        if (fromInput.value) params.set('from', fromInput.value);
-        if (toInput.value) params.set('to', toInput.value);
-
-        const url = `http://localhost:3000/entries?${params.toString()}`;
-        const res = await fetch(url);
-
-        entries = await res.json();
-      } catch (e) {
-        list.innerHTML = '<li>Fehler: Server nicht erreichbar.</li>';
-        return;
+      // Login-Check + Navbar-Anzeige
+      if (!currentUsername || !token) {
+        logoutBtn.style.display = 'none';
+        window.location.href = './login.html';
+      } else {
+        loginLink.style.display = 'none';
       }
 
-      // Basisliste (OnlyMine)
-      const visible = onlyMine
-        ? entries.filter(e => e.createdBy && e.createdBy.username === currentUsername)
-        : entries;
+      onlyMineBtn.textContent = `Nur von ${currentUsername}`;
 
-      // Dropdown-Kategorien (aus ALLEN entries, damit es stabil bleibt)
-      const cats = Array.from(new Set(entries.map(x => (x.category || '').trim()).filter(Boolean))).sort();
-      const currentCat = categorySelect.value; // damit Auswahl erhalten bleibt
-      categorySelect.innerHTML =
-        '<option value="">Alle Kategorien</option>' +
-        cats.map(c => `<option value="${c}">${c}</option>`).join('');
-      categorySelect.value = currentCat;
+      async function loadEntries() {
+        list.innerHTML = '<li>Lade...</li>';
 
-      // Such-/Filterwerte
-      // Backend hat schon gefiltert
-      const filtered = visible;
+        let entries = [];
+        try {
+          const params = new URLSearchParams();
 
-      if (!filtered.length) {
-        list.innerHTML = '<li>Keine passenden Einträge vorhanden.</li>';
-        return;
-      }
+          if (searchInput.value) params.set('q', searchInput.value.trim());
+          if (categorySelect.value)
+            params.set('category', categorySelect.value.trim());
+          if (zipInput.value) params.set('zip', zipInput.value.trim());
+          if (fromInput.value) params.set('from', fromInput.value);
+          if (toInput.value) params.set('to', toInput.value);
 
-      list.innerHTML = '';
+          const url = `http://localhost:3000/entries?${params.toString()}`;
+          const res = await fetch(url);
 
-      for (const e of filtered) {
-        const li = document.createElement('li');
+          entries = await res.json();
+        } catch (e) {
+          list.innerHTML = '<li>Fehler: Server nicht erreichbar.</li>';
+          return;
+        }
 
-        const authorName = (e.createdBy && e.createdBy.username) ? e.createdBy.username : null;
-        const author = authorName ? `von ${authorName}` : 'von (unbekannt)';
-        const canDelete = authorName && (authorName === currentUsername);
+        // Basisliste (OnlyMine)
+        const visible = onlyMine
+          ? entries.filter(
+              (e) => e.createdBy && e.createdBy.username === currentUsername,
+            )
+          : entries;
 
-        li.innerHTML = `
+        // Dropdown-Kategorien (aus ALLEN entries, damit es stabil bleibt)
+        const cats = Array.from(
+          new Set(
+            entries.map((x) => (x.category || '').trim()).filter(Boolean),
+          ),
+        ).sort();
+        const currentCat = categorySelect.value; // damit Auswahl erhalten bleibt
+        categorySelect.innerHTML =
+          '<option value="">Alle Kategorien</option>' +
+          cats.map((c) => `<option value="${c}">${c}</option>`).join('');
+        categorySelect.value = currentCat;
+
+        // Such-/Filterwerte
+        // Backend hat schon gefiltert
+        const filtered = visible;
+
+        if (!filtered.length) {
+          list.innerHTML = '<li>Keine passenden Einträge vorhanden.</li>';
+          return;
+        }
+
+        list.innerHTML = '';
+
+        for (const e of filtered) {
+          const li = document.createElement('li');
+
+          const authorName =
+            e.createdBy && e.createdBy.username ? e.createdBy.username : null;
+          const author = authorName ? `von ${authorName}` : 'von (unbekannt)';
+          const canDelete = authorName && authorName === currentUsername;
+
+          li.innerHTML = `
           <strong>${e.title}</strong> (${e.category}) <small>${author}</small><br/>
           <em>Angebot:</em> ${e.offerDescription}<br/>
           <em>Gesuch:</em> ${e.requestDescription}<br/>
@@ -138,157 +170,216 @@
           <small>Erstellt: ${new Date(e.createdAt).toLocaleString()}</small>
           <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
             ${canDelete ? `<button class="delBtn" data-id="${e._id}">Löschen</button>` : ''}
-            <button class="reportBtn" data-id="${e._id}">Melden</button>
+            
+            ${!canDelete && e.createdBy?._id ? `<button class="contactBtn" data-id="${e._id}" data-owner="${e.createdBy._id}">💬 Kontakt</button>` : ''}
           </div>
         `;
 
-        list.appendChild(li);
-      }
-
-    }
-
-    async function loadMatchesForMyEntries() {
-      matchesList.style.display = 'block';
-      matchesTitle.style.display = 'block';
-      matchesTitle.textContent = 'Matches';
-      matchesList.innerHTML = '<li>Lade Matches...</li>';
-
-      const token = localStorage.getItem('token');
-      if (!token) {
-        matchesList.innerHTML = '<li>Bitte einloggen.</li>';
-        return;
-      }
-
-      // 1) Alle Entries holen
-      let entries = [];
-      try {
-        const res = await fetch('http://localhost:3000/entries');
-        entries = await res.json();
-      } catch {
-        matchesList.innerHTML = '<li>Fehler: Server nicht erreichbar.</li>';
-        return;
-      }
-
-      // 2) Nur meine Entries
-      const myEntries = entries.filter(e => e.createdBy && e.createdBy.username === currentUsername);
-      if (!myEntries.length) {
-        matchesList.innerHTML = '<li>Du hast noch keine Einträge.</li>';
-        return;
-      }
-
-      // 3) Für jeden meiner Entries: /entries/:id/matches abfragen
-      const allMatches = [];
-      for (const e of myEntries) {
-        try {
-          const r = await fetch(`http://localhost:3000/entries/${e._id}/matches`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          const data = await r.json().catch(() => ({}));
-          if (r.ok && data.matches && data.matches.length) {
-            for (const m of data.matches) {
-              allMatches.push({ base: e, match: m });
-            }
-          }
-        } catch {
-          // ignorieren, wir wollen minimal bleiben
+          list.appendChild(li);
         }
       }
 
-      // Badge aktualisieren (zeigt "neue Matches" im Sinne von "aktuelle Trefferzahl")
-      setBadgeCount(allMatches.length);
+      async function loadMatchesForMyEntries() {
+        matchesList.style.display = 'block';
+        matchesTitle.style.display = 'block';
+        matchesTitle.textContent = 'Matches';
+        matchesList.innerHTML = '<li>Lade Matches...</li>';
 
-      // 4) Anzeigen
-      if (!allMatches.length) {
-        matchesList.innerHTML = '<li>Keine Matches gefunden.</li>';
-        return;
-      }
+        const token = localStorage.getItem('token');
+        if (!token) {
+          matchesList.innerHTML = '<li>Bitte einloggen.</li>';
+          return;
+        }
 
-      matchesTitle.textContent = `Matches (${allMatches.length})`;
-      matchesList.innerHTML = '';
+        // 1) Alle Entries holen
+        let entries = [];
+        try {
+          const res = await fetch('http://localhost:3000/entries');
+          entries = await res.json();
+        } catch {
+          matchesList.innerHTML = '<li>Fehler: Server nicht erreichbar.</li>';
+          return;
+        }
 
-      for (const item of allMatches) {
-        const li = document.createElement('li');
-        li.innerHTML = `
+        // 2) Nur meine Entries
+        const myEntries = entries.filter(
+          (e) => e.createdBy && e.createdBy.username === currentUsername,
+        );
+        if (!myEntries.length) {
+          matchesList.innerHTML = '<li>Du hast noch keine Einträge.</li>';
+          return;
+        }
+
+        // 3) Für jeden meiner Entries: /entries/:id/matches abfragen
+        const allMatches = [];
+        for (const e of myEntries) {
+          try {
+            const r = await fetch(
+              `http://localhost:3000/entries/${e._id}/matches`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              },
+            );
+            const data = await r.json().catch(() => ({}));
+            if (r.ok && data.matches && data.matches.length) {
+              for (const m of data.matches) {
+                allMatches.push({ base: e, match: m });
+              }
+            }
+          } catch {
+            // ignorieren, wir wollen minimal bleiben
+          }
+        }
+
+        // Badge aktualisieren (zeigt "neue Matches" im Sinne von "aktuelle Trefferzahl")
+        setBadgeCount(allMatches.length);
+
+        // 4) Anzeigen
+        if (!allMatches.length) {
+          matchesList.innerHTML = '<li>Keine Matches gefunden.</li>';
+          return;
+        }
+
+        matchesTitle.textContent = `Matches (${allMatches.length})`;
+        matchesList.innerHTML = '';
+
+        for (const item of allMatches) {
+          const li = document.createElement('li');
+          li.innerHTML = `
           <div style="padding:8px; border:1px solid #ccc; margin:8px 0;">
             <strong>Dein Eintrag:</strong> ${item.base.title} (${item.base.category}, ${item.base.zip})<br/>
             <strong>Match:</strong> ${item.match.title} (${item.match.category}, ${item.match.zip})
           </div>
         `;
-        matchesList.appendChild(li);
-      }
-    }
-
-    function getBadgeKey() {
-      return `matchBadge_${currentUsername || 'anon'}`;
-    }
-
-    function setBadgeCount(n) {
-      if (n > 0) {
-        matchBadge.style.display = 'inline-block';
-        matchBadge.textContent = String(n);
-      } else {
-        matchBadge.style.display = 'none';
-        matchBadge.textContent = '0';
-      }
-      localStorage.setItem(getBadgeKey(), String(n));
-    }
-
-    function loadBadgeCount() {
-      const saved = parseInt(localStorage.getItem(getBadgeKey()) || '0', 10);
-      setBadgeCount(isNaN(saved) ? 0 : saved);
-    }
-
-    async function refreshMatchBadge() {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      let entries = [];
-      try {
-        const res = await fetch('http://localhost:3000/entries');
-        entries = await res.json();
-      } catch {
-        return;
+          matchesList.appendChild(li);
+        }
       }
 
-      const myEntries = entries.filter(e => e.createdBy && e.createdBy.username === currentUsername);
-      if (!myEntries.length) {
-        setBadgeCount(0);
-        return;
+      function getBadgeKey() {
+        return `matchBadge_${currentUsername || 'anon'}`;
       }
 
-      let count = 0;
+      function setBadgeCount(n) {
+        if (n > 0) {
+          matchBadge.style.display = 'inline-block';
+          matchBadge.textContent = String(n);
+        } else {
+          matchBadge.style.display = 'none';
+          matchBadge.textContent = '0';
+        }
+        localStorage.setItem(getBadgeKey(), String(n));
+      }
 
-      for (const e of myEntries) {
+      function loadBadgeCount() {
+        const saved = parseInt(localStorage.getItem(getBadgeKey()) || '0', 10);
+        setBadgeCount(isNaN(saved) ? 0 : saved);
+      }
+
+      async function refreshMatchBadge() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        let entries = [];
         try {
-          const r = await fetch(`http://localhost:3000/entries/${e._id}/matches`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          const data = await r.json().catch(() => ({}));
-          if (r.ok && data.matches && data.matches.length) {
-            count += data.matches.length;
-          }
-        } catch {}
-      }
-
-      // Badge zeigt "du hast aktuell X Match-Treffer"
-      setBadgeCount(count);
-    }
-
-    // Delete (Event-Delegation)
-    list.addEventListener('click', async (ev) => {
-      const btn = ev.target;
-      // --- REPORT ---
-      if (btn.classList.contains('reportBtn')) {
-        const entryId = btn.getAttribute('data-id');
-        if (!entryId) {
-          alert('Fehler: entryId fehlt (Button hat keine ID).');
+          const res = await fetch('http://localhost:3000/entries');
+          entries = await res.json();
+        } catch {
           return;
         }
 
-        const reason = prompt('Grund der Meldung (z. B. Spam, Betrug, unangemessen):');
-        if (!reason) return;
+        const myEntries = entries.filter(
+          (e) => e.createdBy && e.createdBy.username === currentUsername,
+        );
+        if (!myEntries.length) {
+          setBadgeCount(0);
+          return;
+        }
 
-        const details = prompt('Details (optional):') || '';
+        let count = 0;
+
+        for (const e of myEntries) {
+          try {
+            const r = await fetch(
+              `http://localhost:3000/entries/${e._id}/matches`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              },
+            );
+            const data = await r.json().catch(() => ({}));
+            if (r.ok && data.matches && data.matches.length) {
+              count += data.matches.length;
+            }
+          } catch {}
+        }
+
+        // Badge zeigt "du hast aktuell X Match-Treffer"
+        setBadgeCount(count);
+      }
+
+      // Delete (Event-Delegation)
+      list.addEventListener('click', async (ev) => {
+        const btn = ev.target;
+        if (btn.classList.contains('contactBtn')) {
+          const entryId = btn.getAttribute('data-id');
+          const ownerId = btn.getAttribute('data-owner');
+
+          if (!entryId || !ownerId) {
+            alert('Fehler: Entry oder Owner-ID fehlt.');
+            return;
+          }
+
+          window.location.href = `./chat.html?entry=${entryId}&partner=${ownerId}`;
+          return;
+        }
+        // --- REPORT ---
+        if (btn.classList.contains('reportBtn')) {
+          const entryId = btn.getAttribute('data-id');
+          if (!entryId) {
+            alert('Fehler: entryId fehlt (Button hat keine ID).');
+            return;
+          }
+
+          const reason = prompt(
+            'Grund der Meldung (z. B. Spam, Betrug, unangemessen):',
+          );
+          if (!reason) return;
+
+          const details = prompt('Details (optional):') || '';
+
+          const token = localStorage.getItem('token');
+          if (!token) {
+            alert('Bitte zuerst einloggen.');
+            window.location.href = './login.html';
+            return;
+          }
+
+          const res = await fetch('http://localhost:3000/reports', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ entryId, reason, details }),
+          });
+
+          const data = await res.json().catch(() => ({}));
+
+          if (!res.ok) {
+            alert(
+              (data.message || 'Meldung fehlgeschlagen.') +
+                (data.error ? `\n\nDetails: ${data.error}` : ''),
+            );
+            return;
+          }
+
+          alert('Danke! Eintrag wurde gemeldet!');
+          return;
+        }
+
+        if (!btn.classList.contains('delBtn')) return;
+
+        const id = btn.getAttribute('data-id');
+        if (!confirm('Eintrag wirklich löschen?')) return;
 
         const token = localStorage.getItem('token');
         if (!token) {
@@ -297,87 +388,54 @@
           return;
         }
 
-        const res = await fetch('http://localhost:3000/reports', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ entryId, reason, details })
+        const res = await fetch(`http://localhost:3000/entries/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const data = await res.json().catch(() => ({}));
-
         if (!res.ok) {
-          alert((data.message || 'Meldung fehlgeschlagen.') + (data.error ? `\n\nDetails: ${data.error}` : ''));
+          alert(data.message || 'Löschen fehlgeschlagen.');
           return;
         }
 
-        alert('Danke! Eintrag wurde gemeldet!');
-        return;
-      }
-
-      if (!btn.classList.contains('delBtn')) return;
-
-      const id = btn.getAttribute('data-id');
-      if (!confirm('Eintrag wirklich löschen?')) return;
-
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('Bitte zuerst einloggen.');
-        window.location.href = './login.html';
-        return;
-      }
-
-      const res = await fetch(`http://localhost:3000/entries/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        loadEntries();
       });
 
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        alert(data.message || 'Löschen fehlgeschlagen.');
-        return;
-      }
+      // Logout
+      logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        window.location.href = './login.html';
+      });
 
+      // Controls
+      reloadBtn.addEventListener('click', loadEntries);
+      showMatchesBtn.addEventListener('click', () => {
+        // beim Öffnen als "gesehen" markieren
+        setBadgeCount(0);
+        loadMatchesForMyEntries();
+      });
+
+      onlyMineBtn.addEventListener('click', () => {
+        onlyMine = true;
+        loadEntries();
+      });
+
+      showAllBtn.addEventListener('click', () => {
+        onlyMine = false;
+        loadEntries();
+      });
+
+      searchInput.addEventListener('input', loadEntries);
+      categorySelect.addEventListener('change', loadEntries);
+      zipInput.addEventListener('input', loadEntries);
+      fromInput.addEventListener('change', loadEntries);
+      toInput.addEventListener('change', loadEntries);
+
+      loadBadgeCount();
       loadEntries();
-    });
-
-    // Logout
-    logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('token');
-      localStorage.removeItem('username');
-      window.location.href = './login.html';
-    });
-
-    // Controls
-    reloadBtn.addEventListener('click', loadEntries);
-    showMatchesBtn.addEventListener('click', () => {
-      // beim Öffnen als "gesehen" markieren
-      setBadgeCount(0);
-      loadMatchesForMyEntries();
-    });
-
-
-    onlyMineBtn.addEventListener('click', () => {
-      onlyMine = true;
-      loadEntries();
-    });
-
-    showAllBtn.addEventListener('click', () => {
-      onlyMine = false;
-      loadEntries();
-    });
-
-    searchInput.addEventListener('input', loadEntries);
-    categorySelect.addEventListener('change', loadEntries);
-    zipInput.addEventListener('input', loadEntries);
-    fromInput.addEventListener('change', loadEntries);
-    toInput.addEventListener('change', loadEntries);
-    
-    loadBadgeCount();
-    loadEntries();
-    refreshMatchBadge();
-  </script>
-</body>
+      refreshMatchBadge();
+    </script>
+  </body>
 </html>

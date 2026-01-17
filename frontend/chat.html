@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>tauschBar – Chat</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./style2.css" />
+  <style>
+    /* Chat-spezifische Styles */
+    .chat-container {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      height: calc(100vh - 160px);
+    }
+
+    /* Konversationsliste (linke Seite) */
+    .conversations-panel {
+      width: 320px;
+      min-width: 280px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      background: #fafafa;
+    }
+
+    .conversations-header {
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+      background: #f0f0f0;
+      border-radius: 8px 8px 0 0;
+      font-weight: bold;
+    }
+
+    .conversations-list {
+      flex: 1;
+      overflow-y: auto;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .conversation-item {
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .conversation-item:hover {
+      background: #e8f4e8;
+    }
+
+    .conversation-item.active {
+      background: #d4edda;
+      border-left: 3px solid #28a745;
+    }
+
+    .conversation-partner {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .conversation-entry {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .conversation-preview {
+      font-size: 13px;
+      color: #555;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .conversation-time {
+      font-size: 11px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    .unread-badge {
+      display: inline-block;
+      background: #dc3545;
+      color: white;
+      border-radius: 10px;
+      padding: 2px 8px;
+      font-size: 11px;
+      margin-left: 8px;
+    }
+
+    /* Chat-Bereich (rechte Seite) */
+    .chat-panel {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+    }
+
+    .chat-header {
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+      background: #f0f0f0;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .chat-header h3 {
+      margin: 0 0 5px 0;
+    }
+
+    .chat-header small {
+      color: #666;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message {
+      max-width: 70%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      word-wrap: break-word;
+    }
+
+    .message.sent {
+      align-self: flex-end;
+      background: #007bff;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.received {
+      align-self: flex-start;
+      background: #e9ecef;
+      color: #333;
+      border-bottom-left-radius: 4px;
+    }
+
+    .message-time {
+      font-size: 10px;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+
+    .message.sent .message-time {
+      text-align: right;
+    }
+
+    /* Eingabebereich */
+    .chat-input-area {
+      padding: 15px;
+      border-top: 1px solid #ddd;
+      display: flex;
+      gap: 10px;
+    }
+
+    .chat-input-area textarea {
+      flex: 1;
+      resize: none;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .chat-input-area button {
+      padding: 10px 20px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .chat-input-area button:hover {
+      background: #218838;
+    }
+
+    .chat-input-area button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    /* Platzhalter */
+    .chat-placeholder {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 16px;
+    }
+
+    .no-conversations {
+      padding: 20px;
+      text-align: center;
+      color: #666;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .chat-container {
+        flex-direction: column;
+        height: auto;
+      }
+
+      .conversations-panel {
+        width: 100%;
+        max-height: 300px;
+      }
+
+      .chat-panel {
+        min-height: 400px;
+      }
+
+      .message {
+        max-width: 85%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="./dashboard.html">tauschBar</a>
+
+    <div class="links">
+      <a href="./dashboard.html">Dashboard</a>
+      <a href="./create-entry.html">Neuer Eintrag</a>
+      <a href="./chat.html">Chat <span id="navUnreadBadge" class="unread-badge" style="display:none;">0</span></a>
+      <a href="./profile.html">Profil</a>
+      <a href="./login.html" id="loginLink">Login</a>
+      <button id="logoutBtn" class="linkBtn">Logout</button>
+    </div>
+  </nav>
+
+  <h1>Chat</h1>
+
+  <div class="chat-container">
+    <!-- Linke Seite: Konversationen -->
+    <div class="conversations-panel">
+      <div class="conversations-header">
+        Meine Chats
+        <button id="refreshBtn" style="float:right; padding:2px 8px; font-size:12px;">↻</button>
+      </div>
+      <ul class="conversations-list" id="conversationsList">
+        <li class="no-conversations">Lade...</li>
+      </ul>
+    </div>
+
+    <!-- Rechte Seite: Chat -->
+    <div class="chat-panel" id="chatPanel">
+      <div class="chat-placeholder" id="chatPlaceholder">
+        Wähle eine Konversation aus oder starte einen neuen Chat vom Dashboard.
+      </div>
+
+      <!-- Wird dynamisch angezeigt -->
+      <div id="chatContent" style="display:none; flex-direction:column; height:100%;">
+        <div class="chat-header" id="chatHeader">
+          <h3 id="chatPartnerName">-</h3>
+          <small id="chatEntryInfo">-</small>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <!-- Nachrichten werden hier eingefügt -->
+        </div>
+
+        <div class="chat-input-area">
+          <textarea id="messageInput" rows="2" placeholder="Nachricht schreiben..."></textarea>
+          <button id="sendBtn">Senden</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================================
+    // Globale Variablen
+    // ============================================================
+    const API_BASE = 'http://localhost:3000';
+    let currentConversation = null; // { visavisId, entryId, partnerName }
+    let currentUserId = null;
+
+    // DOM-Elemente
+    const conversationsList = document.getElementById('conversationsList');
+    const chatPlaceholder = document.getElementById('chatPlaceholder');
+    const chatContent = document.getElementById('chatContent');
+    const chatHeader = document.getElementById('chatHeader');
+    const chatPartnerName = document.getElementById('chatPartnerName');
+    const chatEntryInfo = document.getElementById('chatEntryInfo');
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const loginLink = document.getElementById('loginLink');
+    const navUnreadBadge = document.getElementById('navUnreadBadge');
+
+    // ============================================================
+    // Auth-Check
+    // ============================================================
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+
+    if (!token || !username) {
+      window.location.href = './login.html';
+    } else {
+      loginLink.style.display = 'none';
+      // User-ID aus Token extrahieren (JWT Payload)
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        currentUserId = payload.userId;
+      } catch (e) {
+        console.error('Token parsing failed:', e);
+      }
+    }
+
+    // ============================================================
+    // API-Helfer
+    // ============================================================
+    async function apiFetch(endpoint, options = {}) {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        ...options.headers
+      };
+
+      const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.message || 'API-Fehler');
+      }
+
+      return data;
+    }
+
+    // ============================================================
+    // Konversationen laden
+    // ============================================================
+    async function loadConversations() {
+      conversationsList.innerHTML = '<li class="no-conversations">Lade...</li>';
+
+      try {
+        const conversations = await apiFetch('/messages/conversations');
+
+        if (!conversations.length) {
+          conversationsList.innerHTML = '<li class="no-conversations">Noch keine Chats vorhanden.<br><br><small>Starte einen Chat vom Dashboard über den "Kontakt"-Button bei einem Eintrag.</small></li>';
+          return;
+        }
+
+        conversationsList.innerHTML = '';
+
+        for (const conv of conversations) {
+          const li = document.createElement('li');
+          li.className = 'conversation-item';
+          li.dataset.visavisId = conv.partner._id;
+          li.dataset.entryId = conv.entry ? conv.entry._id : '';
+          li.dataset.partnerName = conv.partner.username;
+
+          const unreadBadge = conv.unreadCount > 0
+            ? `<span class="unread-badge">${conv.unreadCount}</span>`
+            : '';
+
+          const entryTitle = conv.entry ? conv.entry.title : '(Eintrag gelöscht)';
+          const lastMsgTime = new Date(conv.lastMessage.createdAt).toLocaleString('de-DE', {
+            day: '2-digit',
+            month: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
+          li.innerHTML = `
+            <div class="conversation-partner">
+              ${conv.partner.username} ${unreadBadge}
+            </div>
+            <div class="conversation-entry">📦 ${entryTitle}</div>
+            <div class="conversation-preview">${conv.lastMessage.content}</div>
+            <div class="conversation-time">${lastMsgTime}</div>
+          `;
+
+          li.addEventListener('click', () => {
+            openConversation(conv.partner._id, conv.entry ? conv.entry._id : '', conv.partner.username, entryTitle);
+          });
+
+          conversationsList.appendChild(li);
+        }
+
+        // Aktive Konversation markieren
+        if (currentConversation) {
+          markActiveConversation(currentConversation.visavisId, currentConversation.entryId);
+        }
+
+      } catch (err) {
+        console.error('Konversationen laden fehlgeschlagen:', err);
+        conversationsList.innerHTML = '<li class="no-conversations">Fehler beim Laden.</li>';
+      }
+    }
+
+    // ============================================================
+    // Konversation öffnen
+    // ============================================================
+    async function openConversation(visavisId, entryId, partnerName, entryTitle) {
+      currentConversation = { visavisId, entryId, partnerName };
+
+      // UI umschalten
+      chatPlaceholder.style.display = 'none';
+      chatContent.style.display = 'flex';
+
+      chatPartnerName.textContent = `Chat mit ${partnerName}`;
+      chatEntryInfo.textContent = `Zu: ${entryTitle || '(Eintrag)'}`;
+
+      // Aktive Markierung setzen
+      markActiveConversation(visavisId, entryId);
+
+      // Nachrichten laden
+      await loadMessages(visavisId, entryId);
+
+      // Ungelesene Badge aktualisieren
+      await updateUnreadBadge();
+      await loadConversations(); // Liste neu laden für Badge-Update
+    }
+
+    // ============================================================
+    // Nachrichten laden
+    // ============================================================
+    async function loadMessages(visavisId, entryId) {
+      chatMessages.innerHTML = '<div style="text-align:center; color:#999;">Lade Nachrichten...</div>';
+
+      try {
+        const messages = await apiFetch(`/messages/conversation/${visavisId}/${entryId}`);
+
+        if (!messages.length) {
+          chatMessages.innerHTML = '<div style="text-align:center; color:#999;">Noch keine Nachrichten. Schreibe die erste!</div>';
+          return;
+        }
+
+        chatMessages.innerHTML = '';
+
+        for (const msg of messages) {
+          const isSent = String(msg.sender._id) === String(currentUserId);
+          const div = document.createElement('div');
+          div.className = `message ${isSent ? 'sent' : 'received'}`;
+
+          const time = new Date(msg.createdAt).toLocaleString('de-DE', {
+            day: '2-digit',
+            month: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
+          div.innerHTML = `
+            <div class="message-content">${escapeHtml(msg.content)}</div>
+            <div class="message-time">${time}</div>
+          `;
+
+          chatMessages.appendChild(div);
+        }
+
+        // Zum Ende scrollen
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      } catch (err) {
+        console.error('Nachrichten laden fehlgeschlagen:', err);
+        chatMessages.innerHTML = '<div style="text-align:center; color:#c00;">Fehler beim Laden der Nachrichten.</div>';
+      }
+    }
+
+    // ============================================================
+    // Nachricht senden
+    // ============================================================
+    async function sendMessage() {
+      if (!currentConversation) {
+        alert('Bitte wähle zuerst eine Konversation.');
+        return;
+      }
+
+      const content = messageInput.value.trim();
+      if (!content) return;
+
+      sendBtn.disabled = true;
+
+      try {
+        await apiFetch('/messages', {
+          method: 'POST',
+          body: JSON.stringify({
+            entryId: currentConversation.entryId,
+            receiverId: currentConversation.visavisId,
+            content
+          })
+        });
+
+        messageInput.value = '';
+
+        // Nachrichten neu laden
+        await loadMessages(currentConversation.visavisId, currentConversation.entryId);
+
+        // Konversationsliste aktualisieren (für letzte Nachricht)
+        await loadConversations();
+
+      } catch (err) {
+        console.error('Senden fehlgeschlagen:', err);
+        alert('Nachricht konnte nicht gesendet werden: ' + err.message);
+      } finally {
+        sendBtn.disabled = false;
+      }
+    }
+
+    // ============================================================
+    // Ungelesene Nachrichten Badge
+    // ============================================================
+    async function updateUnreadBadge() {
+      try {
+        const data = await apiFetch('/messages/unread-count');
+        const count = data.unreadCount || 0;
+
+        if (count > 0) {
+          navUnreadBadge.textContent = count;
+          navUnreadBadge.style.display = 'inline-block';
+        } else {
+          navUnreadBadge.style.display = 'none';
+        }
+      } catch (err) {
+        console.error('Unread count error:', err);
+      }
+    }
+
+    // ============================================================
+    // Hilfsfunktionen
+    // ============================================================
+    function markActiveConversation(visavisId, entryId) {
+      document.querySelectorAll('.conversation-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.visavisId === visavisId && item.dataset.entryId === entryId) {
+          item.classList.add('active');
+        }
+      });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ============================================================
+    // URL-Parameter prüfen (für direkten Chat-Start vom Dashboard)
+    // ============================================================
+    async function checkUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      const entryId = params.get('entry');
+      const partnerId = params.get('partner');
+
+      if (entryId && partnerId) {
+        try {
+          // Entry-Info laden
+          const entryInfo = await apiFetch(`/messages/entry-info/${entryId}`);
+          openConversation(partnerId, entryId, entryInfo.owner.username, entryInfo.title);
+        } catch (err) {
+          console.error('URL-Params verarbeiten fehlgeschlagen:', err);
+        }
+      }
+    }
+
+    // ============================================================
+    // Event Listeners
+    // ============================================================
+    sendBtn.addEventListener('click', sendMessage);
+
+    messageInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    refreshBtn.addEventListener('click', async () => {
+      await loadConversations();
+      if (currentConversation) {
+        await loadMessages(currentConversation.visavisId, currentConversation.entryId);
+      }
+      await updateUnreadBadge();
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      window.location.href = './login.html';
+    });
+
+    // ============================================================
+    // Initialisierung
+    // ============================================================
+    (async function init() {
+      await loadConversations();
+      await updateUnreadBadge();
+      await checkUrlParams();
+
+      // Auto-Refresh alle 30 Sekunden
+      setInterval(async () => {
+        await loadConversations();
+        if (currentConversation) {
+          await loadMessages(currentConversation.visavisId, currentConversation.entryId);
+        }
+        await updateUnreadBadge();
+      }, 30000);
+    })();
+  </script>
+</body>
+</html>
