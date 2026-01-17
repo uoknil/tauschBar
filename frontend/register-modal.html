@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>tauschBar – Registrieren</title>
+  <link rel="stylesheet" href="./landing-page.css" />
+  <link rel="stylesheet" href="./app-styles.css" />
+  <link rel="stylesheet" href="./auth-modal.css" />
+</head>
+<body>
+  <nav class="app-nav">
+    <div class="app-nav-container">
+      <a class="brand" href="/">tauschBar</a>
+      <div class="nav-links">
+        <a href="./login-modal.html">Login</a>
+        <a href="./register-modal.html">Registrieren</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Auth Modal Overlay -->
+  <div class="auth-modal-overlay">
+    <div class="auth-modal">
+      <!-- Modal Header -->
+      <div class="auth-modal-header">
+        <h2 class="auth-modal-title">Registrieren</h2>
+        <button class="auth-modal-close" onclick="window.location.href='/'">&times;</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="auth-modal-body">
+        <!-- Left Column: Registration Form -->
+        <div class="auth-form-section">
+          <form id="registerForm">
+            <div class="auth-input-group">
+              <input 
+                type="text" 
+                id="username" 
+                class="auth-input" 
+                placeholder="Username" 
+                required 
+              />
+            </div>
+
+            <div class="auth-input-group">
+              <input 
+                type="email" 
+                id="email" 
+                class="auth-input" 
+                placeholder="Email address" 
+                required 
+              />
+            </div>
+
+            <div class="auth-input-group">
+              <input 
+                type="password" 
+                id="password" 
+                class="auth-input" 
+                placeholder="Password (min. 6 Zeichen)" 
+                required 
+              />
+            </div>
+
+            <div class="auth-options">
+              <div class="auth-checkbox-group">
+                <input type="checkbox" id="acceptTerms" required />
+                <label for="acceptTerms">AGB akzeptieren</label>
+              </div>
+              <a href="#" class="auth-link">Passwort anzeigen</a>
+            </div>
+
+            <!-- reCAPTCHA Placeholder -->
+            <div class="auth-recaptcha">
+              <div style="border: 1px solid #ddd; padding: 12px; border-radius: 4px; font-size: 12px; color: #666; text-align: center;">
+                ☐ Ich bin kein Roboter
+              </div>
+            </div>
+
+            <div id="msg"></div>
+
+            <button type="submit" class="auth-submit-btn enabled">
+              Kostenlos registrieren
+            </button>
+          </form>
+        </div>
+
+        <!-- Right Column: Social Login -->
+        <div class="auth-social-section">
+          <button class="auth-social-btn" onclick="alert('Google Login coming soon')">
+            <svg class="auth-social-icon" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Weiter mit Google
+          </button>
+
+          <button class="auth-social-btn" onclick="alert('Apple Login coming soon')">
+            <svg class="auth-social-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.09l-.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+            </svg>
+            Weiter mit Apple
+          </button>
+
+          <button class="auth-social-btn" onclick="alert('Facebook Login coming soon')">
+            <svg class="auth-social-icon" viewBox="0 0 24 24" fill="#1877F2">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            Weiter mit Facebook
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="auth-modal-footer">
+        Schon registriert?
+        <a href="./login-modal.html">Zum Login</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('registerForm');
+    const msg = document.getElementById('msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.innerHTML = '<div class="auth-alert auth-alert-error">Registrierung läuft...</div>';
+
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await fetch('http://localhost:3000/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          msg.innerHTML = `<div class="auth-alert auth-alert-error">${data.message || 'Registrierung fehlgeschlagen.'}</div>`;
+          return;
+        }
+
+        msg.innerHTML = '<div class="auth-alert auth-alert-success">Erfolgreich registriert! Weiterleitung zum Login...</div>';
+        setTimeout(() => {
+          window.location.href = './login-modal.html';
+        }, 1000);
+      } catch (err) {
+        msg.innerHTML = '<div class="auth-alert auth-alert-error">Netzwerkfehler. Läuft der Server?</div>';
+      }
+    });
+
+    // Passwort anzeigen/verstecken
+    document.querySelector('.auth-options .auth-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      const passwordInput = document.getElementById('password');
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        e.target.textContent = 'Passwort verstecken';
+      } else {
+        passwordInput.type = 'password';
+        e.target.textContent = 'Passwort anzeigen';
+      }
+    });
+  </script>
+</body>
+</html>

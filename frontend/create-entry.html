@@ -4,131 +4,493 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>tauschBar – Eintrag erstellen</title>
-  <link rel="stylesheet" href="./style.css" />
-  <link rel="stylesheet" href="./style2.css" />
+  <link rel="stylesheet" href="./landing-page.css" />
+  <link rel="stylesheet" href="./app-styles.css" />
+  <script src="./categories.js"></script>
+  <style>
+    .form-section {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .form-section h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin: 0 0 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+    }
+
+    .form-group textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .form-group small {
+      display: block;
+      margin-top: 6px;
+      color: var(--text-light);
+      font-size: 13px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .info-box {
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: start;
+      gap: 12px;
+      background: rgba(108, 92, 231, 0.05);
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 16px;
+      flex: 1;
+    }
+
+    .btn-primary {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #e0e0e0;
+      color: var(--text-dark);
+    }
+
+    .btn-secondary:hover {
+      background: #d0d0d0;
+    }
+
+    .alert {
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .category-option {
+      padding: 8px;
+    }
+
+    .page-header-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-  <nav class="nav">
-    <a class="brand" href="./dashboard.html">tauschBar</a>
-
-    <div class="links">
-      <a href="./dashboard.html">Dashboard</a>
-      <a href="./create-entry.html">Neuer Eintrag</a>
-      <a href="./profile.html">Profil</a>
-      <a href="./login.html" id="loginLink">Login</a>
-      <button id="logoutBtn" class="linkBtn">Logout</button>
+  <nav class="app-nav">
+    <div class="app-nav-container">
+      <a class="brand" href="./dashboard.html">tauschBar</a>
+      <div class="nav-links">
+        <span id="navUser" style="font-weight: 600;"></span>
+        <a href="./dashboard.html">Dashboard</a>
+        <a href="./create-entry.html" class="btn-primary-nav">+ Eintrag erstellen</a>
+        <a href="./chat.html">Chat</a>
+        <a href="./profile.html">Profil</a>
+        <button id="logoutBtn" class="btn">Logout</button>
+      </div>
     </div>
   </nav>
 
-  <h1>Eintrag erstellen (Angebot + Gesuch)</h1>
+  <div class="page-container-narrow">
+    <!-- Alert Messages -->
+    <div id="alertSuccess" class="alert success"></div>
+    <div id="alertError" class="alert error"></div>
 
-  <form id="entryForm">
-    <div>
-      <label>Titel</label><br />
-      <input name="title" required />
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-icon">🤝</div>
+      <h1 class="page-title">Neuer Eintrag erstellen</h1>
+      <p class="page-subtitle">Biete deine Hilfe an und sage, was du dafür brauchst</p>
     </div>
 
-    <div>
-      <label>Angebot (Was bietest du?)</label><br />
-      <textarea name="offerDescription" required></textarea>
+    <div class="info-box">
+      <span style="font-size: 24px;">💡</span>
+      <div>
+        <strong>Wie funktioniert's?</strong><br>
+        Bei tauschBar erstellst du immer einen Eintrag, der aus einem <strong>Angebot</strong> (was du gibst) 
+        und einem <strong>Gesuch</strong> (was du brauchst) besteht. So entsteht ein fairer Tausch in der Nachbarschaft!
+      </div>
     </div>
 
-    <div>
-      <label>Gesuch (Was brauchst du?)</label><br />
-      <textarea name="requestDescription" required></textarea>
-    </div>
+    <form id="entryForm">
+      <!-- Basic Information -->
+      <div class="form-section">
+        <h2>
+          <span>📝</span>
+          Grundinformationen
+        </h2>
+        
+        <div class="form-group">
+          <label>Titel *</label>
+          <input 
+            name="title" 
+            required 
+            placeholder="z.B. Hilfe beim Einkaufen gegen Gartenarbeit"
+            maxlength="100"
+          />
+          <small>Kurze, aussagekräftige Beschreibung deines Tauschangebots</small>
+        </div>
 
-    <div>
-      <label>Kategorie</label><br />
-      <input name="category" required placeholder="z.B. Haushalt" />
-    </div>
+        <div class="form-group">
+          <label>Kategorie *</label>
+          <select name="category" id="categorySelect" required>
+            <option value="">Bitte wähle eine Kategorie...</option>
+          </select>
+          <small>Wähle die passende Kategorie für deinen Eintrag</small>
+        </div>
+      </div>
 
-    <!-- PLZ + Zeitraum (müssen name= haben!) -->
-    <div>
-      <label>PLZ</label><br />
-      <input id="zipInput" name="zip" required placeholder="z.B. 1010" />
-    </div>
+      <!-- Offer Section -->
+      <div class="form-section">
+        <h2>
+          <span>🎁</span>
+          Dein Angebot
+        </h2>
+        
+        <div class="form-group">
+          <label>Was bietest du an? *</label>
+          <textarea 
+            name="offerDescription" 
+            required
+            placeholder="Beschreibe, welche Hilfe oder Dienstleistung du anbietest..."
+            maxlength="500"
+          ></textarea>
+          <small>z.B. "Ich kann für dich einkaufen gehen oder mit deinem Hund spazieren."</small>
+        </div>
+      </div>
 
-    <div>
-      <label>Zeitraum von</label><br />
-      <input id="fromInput" name="availableFrom" type="date" required />
-    </div>
+      <!-- Request Section -->
+      <div class="form-section">
+        <h2>
+          <span>🔍</span>
+          Dein Gesuch
+        </h2>
+        
+        <div class="form-group">
+          <label>Was brauchst du? *</label>
+          <textarea 
+            name="requestDescription" 
+            required
+            placeholder="Beschreibe, welche Hilfe oder Dienstleistung du suchst..."
+            maxlength="500"
+          ></textarea>
+          <small>z.B. "Ich suche jemanden, der mir bei der Gartenarbeit hilft."</small>
+        </div>
+      </div>
 
-    <div>
-      <label>Zeitraum bis</label><br />
-      <input id="toInput" name="availableTo" type="date" />
-      <small style="display:block; margin-top:4px;">
-        (optional – wenn leer, wird automatisch „von“ verwendet)
-      </small>
-    </div>
+      <!-- Location -->
+      <div class="form-section">
+        <h2>
+          <span>📍</span>
+          Standort
+        </h2>
+        
+        <div class="form-group">
+          <label>PLZ *</label>
+          <input 
+            id="zipInput" 
+            name="zip" 
+            required 
+            placeholder="z.B. 1010"
+            pattern="[0-9]{4,5}"
+            maxlength="5"
+          />
+          <small>Deine genaue Adresse bleibt privat. Die PLZ wird nur für die Umkreissuche verwendet.</small>
+        </div>
+      </div>
 
-    <button type="submit">Speichern</button>
-  </form>
-
-  <p id="result"></p>
-
-  <p>
-    <a href="./dashboard.html">→ Zur Übersicht (Dashboard)</a>
-  </p>
+      <!-- Submit Buttons -->
+      <div class="btn-group">
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          ✅ Eintrag erstellen
+        </button>
+        <button type="button" class="btn btn-secondary" id="cancelBtn">
+          ❌ Abbrechen
+        </button>
+      </div>
+    </form>
+  </div>
 
   <script>
+    // Elements
     const form = document.getElementById('entryForm');
     const logoutBtn = document.getElementById('logoutBtn');
-    const loginLink = document.getElementById('loginLink');
+    const navUser = document.getElementById('navUser');
+    const categorySelect = document.getElementById('categorySelect');
+    const submitBtn = document.getElementById('submitBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const alertSuccess = document.getElementById('alertSuccess');
+    const alertError = document.getElementById('alertError');
 
+    // Auth check
     const username = localStorage.getItem('username');
-    const tokenStored = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
 
-    if (!username || !tokenStored) {
-      logoutBtn.style.display = 'none';
+    if (!username || !token) {
+      window.location.href = './login.html';
     } else {
-      loginLink.style.display = 'none';
+      navUser.textContent = `Hallo, ${username}`;
     }
 
-    const result = document.getElementById('result');
+    // Show/hide alerts
+    function showSuccess(message) {
+      alertSuccess.textContent = message;
+      alertSuccess.classList.add('show');
+      alertError.classList.remove('show');
+      setTimeout(() => alertSuccess.classList.remove('show'), 5000);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
+    function showError(message) {
+      alertError.textContent = message;
+      alertError.classList.add('show');
+      alertSuccess.classList.remove('show');
+      setTimeout(() => alertError.classList.remove('show'), 5000);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // Load Categories
+    if (window.CATEGORIES) {
+      window.CATEGORIES.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.name;
+        option.textContent = `${cat.icon} ${cat.name}`;
+        categorySelect.appendChild(option);
+      });
+    } else {
+      console.warn('Categories not loaded!');
+      showError('Kategorien konnten nicht geladen werden. Bitte Seite neu laden.');
+    }
+
+
+    // Form submission
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const data = Object.fromEntries(new FormData(form).entries());
 
-      // Minimal robust: wenn availableTo leer ist -> availableFrom verwenden
-      if (!data.availableTo) {
-        data.availableTo = data.availableFrom;
-      }
-
-      const token = localStorage.getItem('token');
-
-      if (!token) {
-        alert('Bitte zuerst einloggen.');
-        window.location.href = './login.html';
+      // Validation
+      if (!data.title || data.title.trim().length < 5) {
+        showError('Titel muss mindestens 5 Zeichen lang sein');
         return;
       }
 
-      const res = await fetch('http://localhost:3000/entries', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(data)
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        result.textContent = 'Fehler beim Speichern.' + (err.message ? ` (${err.message})` : '');
+      if (!data.offerDescription || data.offerDescription.trim().length < 10) {
+        showError('Angebot muss mindestens 10 Zeichen lang sein');
         return;
       }
 
-      const created = await res.json();
-      result.textContent = `Gespeichert! ID: ${created._id || created.id}`;
-      form.reset();
+      if (!data.requestDescription || data.requestDescription.trim().length < 10) {
+        showError('Gesuch muss mindestens 10 Zeichen lang sein');
+        return;
+      }
+
+      if (!data.zip || !/^\d{4,5}$/.test(data.zip)) {
+        showError('Bitte gib eine gültige PLZ ein (4-5 Ziffern)');
+        return;
+      }
+
+      // Disable submit button
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Wird erstellt...';
+
+      try {
+        const res = await fetch('/entries', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.message || 'Fehler beim Speichern');
+        }
+
+        const created = await res.json();
+        
+        // Show success message
+        showSuccess(`✅ Eintrag erfolgreich erstellt! Du wirst weitergeleitet...`);
+        
+        // Reset form
+        form.reset();
+        
+        // Redirect to dashboard after 2 seconds
+        setTimeout(() => {
+          window.location.href = './dashboard.html';
+        }, 2000);
+
+      } catch (error) {
+        console.error('Error creating entry:', error);
+        showError(error.message || 'Fehler beim Erstellen des Eintrags');
+        submitBtn.disabled = false;
+        submitBtn.textContent = '✅ Eintrag erstellen';
+      }
     });
 
+    // Cancel button
+    cancelBtn.addEventListener('click', () => {
+      if (confirm('Möchtest du wirklich abbrechen? Alle eingegebenen Daten gehen verloren.')) {
+        window.location.href = './dashboard.html';
+      }
+    });
+
+    // Logout
     logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('token');
-      localStorage.removeItem('username');
-      window.location.href = './login.html';
+      if (confirm('Möchtest du dich wirklich abmelden?')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        window.location.href = './login.html';
+      }
+    });
+
+    // Auto-save to localStorage (draft)
+    let autoSaveTimer;
+    form.addEventListener('input', () => {
+      clearTimeout(autoSaveTimer);
+      autoSaveTimer = setTimeout(() => {
+        const formData = Object.fromEntries(new FormData(form).entries());
+        localStorage.setItem('entryDraft', JSON.stringify(formData));
+        console.log('Draft auto-saved');
+      }, 2000);
+    });
+
+    // Restore draft on load
+    window.addEventListener('load', () => {
+      const draft = localStorage.getItem('entryDraft');
+      if (draft) {
+        const shouldRestore = confirm('Es wurde ein Entwurf gefunden. Möchtest du ihn wiederherstellen?');
+        if (shouldRestore) {
+          try {
+            const data = JSON.parse(draft);
+            Object.keys(data).forEach(key => {
+              const field = form.elements[key];
+              if (field) {
+                field.value = data[key];
+              }
+            });
+            showSuccess('Entwurf wiederhergestellt!');
+          } catch (error) {
+            console.error('Error restoring draft:', error);
+          }
+        }
+        localStorage.removeItem('entryDraft');
+      }
     });
   </script>
 </body>

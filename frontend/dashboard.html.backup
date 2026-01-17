@@ -9,90 +9,93 @@
     <script src="./categories.js"></script>
   </head>
   <body>
-    <nav class="app-nav">
-      <div class="app-nav-container">
-        <a class="brand" href="./dashboard.html">tauschBar</a>
-        <div class="nav-links">
-          <span id="navUser" style="font-weight: 600;"></span>
-          <a href="./dashboard.html">Dashboard</a>
-          <a href="./create-entry.html" class="btn-primary-nav">+ Eintrag erstellen</a>
-          <a href="./chat.html">Chat</a>
-          <a href="./profile.html">Profil</a>
-          <button id="logoutBtn" class="btn">Logout</button>
-        </div>
+    <nav class="nav">
+      <a class="brand" href="./dashboard.html">tauschBar</a>
+
+      <div class="links">
+        <a href="./dashboard.html">Dashboard</a>
+        <a href="./create-entry.html">Neuer Eintrag</a>
+        <a href="./profile.html">Profil</a>
+        <a href="./login.html" id="loginLink">Login</a>
+        <button id="logoutBtn" class="linkBtn">Logout</button>
       </div>
     </nav>
 
-    <div class="page-container">
-      <div class="page-header">
-        <h1 class="page-title">Dashboard</h1>
-        <p class="page-subtitle">Entdecke Angebote und Gesuche in deiner Nähe</p>
-      </div>
+    <h1>Dashboard</h1>
 
-      <div style="display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap;">
-        <button id="onlyMineBtn" class="btn btn-secondary">Nur meine Einträge</button>
-        <button id="showOthersBtn" class="btn btn-primary">Einträge von anderen</button>
-        <button id="showMatchesBtn" class="btn btn-secondary">
-          Matches <span id="matchBadge" class="badge badge-primary" style="display: none; margin-left: 4px;">0</span>
-        </button>
-      </div>
+    <div
+      style="
+        padding: 0 20px 10px 20px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      "
+    >
+      <button id="reloadBtn">Neu laden</button>
+      <button id="onlyMineBtn">Nur meine Einträge</button>
+      <button id="showAllBtn">Alle</button>
+      <button id="showMatchesBtn">
+        Matches anzeigen
+        <span
+          id="matchBadge"
+          style="
+            display: none;
+            margin-left: 6px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            border: 1px solid #999;
+            font-size: 12px;
+          "
+          >0</span
+        >
+      </button>
 
-      <div class="app-card" style="margin-bottom: 32px;">
-        <h3 style="margin: 0 0 20px 0; font-size: 18px; font-weight: 700;">🔍 Suche & Filter</h3>
-        
-        <div style="display: flex; flex-direction: column; gap: 16px;">
-          <div class="form-group">
-            <input id="searchInput" placeholder="Suche nach Titel, Angebot oder Gesuch..." style="margin: 0;" />
-          </div>
-          
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-            <div class="form-group" style="margin: 0;">
-              <select id="categorySelect">
-                <option value="">Alle Kategorien</option>
-              </select>
-            </div>
-            
-            <div class="form-group" style="margin: 0;">
-              <input id="zipInput" placeholder="PLZ..." />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="matchesSection" style="display: none; margin-bottom: 32px;">
-        <h2 id="matchesTitle" style="font-size: 24px; font-weight: 700; margin: 0 0 20px 0;">Matches</h2>
-        <ul id="matchesList" class="app-list"></ul>
-      </div>
-
-      <h2 style="font-size: 24px; font-weight: 700; margin: 0 0 20px 0;">📋 Einträge</h2>
-      <ul id="list" class="app-list"></ul>
+      <input
+        id="searchInput"
+        placeholder="Suche (Titel/Angebot/Gesuch)..."
+        style="width: 280px"
+      />
+      <select id="categorySelect">
+        <option value="">Alle Kategorien</option>
+      </select>
+      <input id="zipInput" placeholder="PLZ..." style="width: 100px" />
+      <input id="fromInput" type="date" />
+      <input id="toInput" type="date" />
     </div>
+
+    <ul id="list"></ul>
+    <h2 id="matchesTitle" style="display: none; padding: 0 20px">Matches</h2>
+    <ul id="matchesList" style="display: none; padding: 0 20px"></ul>
 
     <script>
       const list = document.getElementById('list');
       const searchInput = document.getElementById('searchInput');
       const categorySelect = document.getElementById('categorySelect');
+      const reloadBtn = document.getElementById('reloadBtn');
       const onlyMineBtn = document.getElementById('onlyMineBtn');
-      const showOthersBtn = document.getElementById('showOthersBtn');
+      const showAllBtn = document.getElementById('showAllBtn');
       const logoutBtn = document.getElementById('logoutBtn');
-      const navUser = document.getElementById('navUser');
+      const loginLink = document.getElementById('loginLink');
       const showMatchesBtn = document.getElementById('showMatchesBtn');
       const matchesTitle = document.getElementById('matchesTitle');
       const matchesList = document.getElementById('matchesList');
       const zipInput = document.getElementById('zipInput');
+      const fromInput = document.getElementById('fromInput');
+      const toInput = document.getElementById('toInput');
       const matchBadge = document.getElementById('matchBadge');
 
-      // Standardmäßig nur Einträge von anderen anzeigen
-      let showMode = 'others'; // 'others' oder 'mine'
+      let onlyMine = false;
 
       const currentUsername = localStorage.getItem('username');
       const token = localStorage.getItem('token');
 
       // Login-Check + Navbar-Anzeige
       if (!currentUsername || !token) {
+        logoutBtn.style.display = 'none';
         window.location.href = './login.html';
       } else {
-        navUser.textContent = `Hallo, ${currentUsername}`;
+        loginLink.style.display = 'none';
       }
 
       onlyMineBtn.textContent = `Nur von ${currentUsername}`;
@@ -128,6 +131,8 @@
           if (categorySelect.value)
             params.set('category', categorySelect.value.trim());
           if (zipInput.value) params.set('zip', zipInput.value.trim());
+          if (fromInput.value) params.set('from', fromInput.value);
+          if (toInput.value) params.set('to', toInput.value);
 
           const url = `http://localhost:3000/entries?${params.toString()}`;
           const res = await fetch(url);
@@ -138,50 +143,19 @@
           return;
         }
 
-        // Basisliste je nach Modus filtern
-        let visible = entries;
-        
-        console.log('DEBUG: Total entries:', entries.length);
-        console.log('DEBUG: currentUsername:', currentUsername);
-        console.log('DEBUG: showMode:', showMode);
-        
-        if (showMode === 'mine') {
-          // Nur meine Einträge anzeigen
-          visible = entries.filter(
-            (e) => e.createdBy && e.createdBy.username === currentUsername,
-          );
-          console.log('DEBUG: My entries filtered:', visible.length);
-        } else if (showMode === 'others') {
-          // Nur Einträge von anderen (nicht meine)
-          // Wenn kein currentUsername vorhanden, zeige alle
-          if (currentUsername) {
-            visible = entries.filter(
-              (e) => !e.createdBy || e.createdBy.username !== currentUsername,
-            );
-            console.log('DEBUG: Others entries filtered:', visible.length);
-            console.log('DEBUG: Sample entries:', entries.slice(0, 3).map(e => ({
-              title: e.title,
-              username: e.createdBy?.username
-            })));
-          } else {
-            // Nicht eingeloggt: zeige alle Einträge
-            visible = entries;
-            console.log('DEBUG: Not logged in, showing all:', visible.length);
-          }
-        }
+        // Basisliste (OnlyMine)
+        const visible = onlyMine
+          ? entries.filter(
+              (e) => e.createdBy && e.createdBy.username === currentUsername,
+            )
+          : entries;
 
         // Such-/Filterwerte
         // Backend hat schon gefiltert
         const filtered = visible;
 
         if (!filtered.length) {
-          if (showMode === 'others' && currentUsername) {
-            list.innerHTML = '<li>📭 Aktuell gibt es keine Einträge von anderen Nutzern.<br><small>Klicke auf "Nur meine Einträge" um deine eigenen Einträge zu sehen.</small></li>';
-          } else if (showMode === 'mine') {
-            list.innerHTML = '<li>📭 Du hast noch keine Einträge erstellt.<br><small>Klicke auf <a href="./create-entry.html">"+ Eintrag erstellen"</a> um einen neuen Eintrag zu erstellen.</small></li>';
-          } else {
-            list.innerHTML = '<li>📭 Keine passenden Einträge vorhanden.</li>';
-          }
+          list.innerHTML = '<li>Keine passenden Einträge vorhanden.</li>';
           return;
         }
 
@@ -199,8 +173,10 @@
           <strong>${e.title}</strong> (${e.category}) <small>${author}</small><br/>
           <em>Angebot:</em> ${e.offerDescription}<br/>
           <em>Gesuch:</em> ${e.requestDescription}<br/>
-          <small>📍 PLZ:</small> ${e.zip || '-'} | 
-          <small>📅 Erstellt:</small> ${new Date(e.createdAt).toLocaleDateString('de-DE', { year: 'numeric', month: 'long', day: 'numeric' })}<br/>
+          <small>PLZ:</small> ${e.zip || '-'} |
+          <small>Zeitraum:</small> ${e.availableFrom ? new Date(e.availableFrom).toLocaleDateString() : '-'}
+          – ${e.availableTo ? new Date(e.availableTo).toLocaleDateString() : '-'}<br/>
+          <small>Erstellt: ${new Date(e.createdAt).toLocaleString()}</small>
           <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
             ${canDelete ? `<button class="delBtn" data-id="${e._id}">Löschen</button>` : ''}
             
@@ -443,6 +419,7 @@
       });
 
       // Controls
+      reloadBtn.addEventListener('click', loadEntries);
       showMatchesBtn.addEventListener('click', () => {
         // beim Öffnen als "gesehen" markieren
         setBadgeCount(0);
@@ -450,33 +427,20 @@
       });
 
       onlyMineBtn.addEventListener('click', () => {
-        showMode = 'mine';
-        onlyMineBtn.classList.add('btn-primary');
-        onlyMineBtn.classList.remove('btn-secondary');
-        showOthersBtn.classList.add('btn-secondary');
-        showOthersBtn.classList.remove('btn-primary');
+        onlyMine = true;
         loadEntries();
       });
 
-      showOthersBtn.addEventListener('click', () => {
-        showMode = 'others';
-        showOthersBtn.classList.add('btn-primary');
-        showOthersBtn.classList.remove('btn-secondary');
-        onlyMineBtn.classList.add('btn-secondary');
-        onlyMineBtn.classList.remove('btn-primary');
+      showAllBtn.addEventListener('click', () => {
+        onlyMine = false;
         loadEntries();
       });
 
       searchInput.addEventListener('input', loadEntries);
       categorySelect.addEventListener('change', loadEntries);
       zipInput.addEventListener('input', loadEntries);
-
-      // Check URL parameters and pre-fill search field
-      const urlParams = new URLSearchParams(window.location.search);
-      const searchParam = urlParams.get('search');
-      if (searchParam) {
-        searchInput.value = searchParam;
-      }
+      fromInput.addEventListener('change', loadEntries);
+      toInput.addEventListener('change', loadEntries);
 
       // Init
       loadCategoryOptions();

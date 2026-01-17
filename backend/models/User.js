@@ -26,6 +26,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  profilePicture: {
+    type: String,
+    default: null  // URL/path to profile picture
+  },
   warnings: {
     type: Number,
     default: 0

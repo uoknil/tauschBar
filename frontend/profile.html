@@ -3,50 +3,936 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>tauschBar – Profil</title>
-  <link rel="stylesheet" href="./style.css" />
-  <link rel="stylesheet" href="./style2.css" />
+  <title>tauschBar – Mein Profil</title>
+  <link rel="stylesheet" href="./landing-page.css" />
+  <link rel="stylesheet" href="./app-styles.css" />
+  <style>
+    .profile-section {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .profile-section h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin: 0 0 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .profile-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      padding: 32px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .profile-avatar-large {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      border: 3px solid white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      font-weight: 900;
+      color: white;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-avatar-large img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .profile-avatar-large .avatar-initial {
+      position: relative;
+      z-index: 1;
+    }
+
+    .avatar-upload-overlay {
+      position: absolute;
+      bottom: -50px;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      text-align: center;
+      padding: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: bottom 0.3s;
+      z-index: 2;
+    }
+
+    .profile-avatar-large:hover .avatar-upload-overlay {
+      bottom: 0;
+    }
+
+    .avatar-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    .image-preview {
+      margin-top: 12px;
+      max-width: 200px;
+      border-radius: 8px;
+      border: 2px solid #e0e0e0;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: -9999px;
+    }
+
+    .file-input-label {
+      display: inline-block;
+      padding: 10px 20px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .file-input-label:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    .profile-header-info {
+      flex: 1;
+    }
+
+    .profile-header-info h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin: 0 0 8px 0;
+    }
+
+    .profile-header-info p {
+      font-size: 14px;
+      opacity: 0.9;
+      margin: 4px 0;
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-card-value {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .stat-card-label {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .form-group input:disabled {
+      background: #f5f5f5;
+      cursor: not-allowed;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+    }
+
+    .btn-secondary {
+      background: #e0e0e0;
+      color: var(--text-dark);
+    }
+
+    .btn-secondary:hover {
+      background: #d0d0d0;
+    }
+
+    .btn-danger {
+      background: #f44336;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #d32f2f;
+    }
+
+    .edit-mode {
+      display: none;
+    }
+
+    .edit-mode.active {
+      display: block;
+    }
+
+    .view-mode.hidden {
+      display: none;
+    }
+
+    .info-box {
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: start;
+      gap: 12px;
+    }
+
+    .info-box.success {
+      background: rgba(76, 175, 80, 0.1);
+      border-left: 4px solid var(--secondary-color);
+    }
+
+    .info-box.warning {
+      background: rgba(255, 152, 0, 0.1);
+      border-left: 4px solid #ff9800;
+    }
+
+    .info-box.danger {
+      background: rgba(244, 67, 54, 0.1);
+      border-left: 4px solid #f44336;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    @media (max-width: 768px) {
+      .profile-header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-  <nav class="nav">
-    <a class="brand" href="./dashboard.html">tauschBar</a>
-
-    <div class="links">
-      <a href="./dashboard.html">Dashboard</a>
-      <a href="./create-entry.html">Neuer Eintrag</a>
-      <a href="./profile.html">Profil</a>
-      <a href="./login.html" id="loginLink">Login</a>
-      <button id="logoutBtn" class="linkBtn">Logout</button>
+  <nav class="app-nav">
+    <div class="app-nav-container">
+      <a class="brand" href="./dashboard.html">tauschBar</a>
+      <div class="nav-links">
+        <span id="navUser" style="font-weight: 600;"></span>
+        <a href="./dashboard.html">Dashboard</a>
+        <a href="./create-entry.html" class="btn-primary-nav">+ Eintrag erstellen</a>
+        <a href="./chat.html">Chat</a>
+        <a href="./profile.html">Profil</a>
+        <button id="logoutBtn" class="btn">Logout</button>
+      </div>
     </div>
   </nav>
 
-  <h1>Profil</h1>
+  <div class="page-container-narrow">
+    <!-- Alert Messages -->
+    <div id="alertSuccess" class="alert success"></div>
+    <div id="alertError" class="alert error"></div>
 
-  <div style="padding: 0 20px;">
-    <p><strong>Username:</strong> <span id="username"></span></p>
-    <p><strong>Status:</strong> <span id="status"></span></p>
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="profile-avatar-large" id="avatarLarge">
+        <span class="avatar-initial" id="avatarInitial"></span>
+        <div class="avatar-upload-overlay" id="avatarUploadBtn">
+          📷 Bild ändern
+        </div>
+      </div>
+      <div class="profile-header-info">
+        <h1 id="profileUsername">Username</h1>
+        <p>📧 <span id="profileEmail">email@example.com</span></p>
+        <p>📅 Mitglied seit <span id="memberSince">---</span></p>
+        <div style="margin-top: 12px;">
+          <span class="badge" id="statusBadge">
+            <span>✅</span> Aktiv
+          </span>
+        </div>
+        
+        <div class="profile-stats">
+          <div class="stat-card">
+            <div class="stat-card-value" id="warningsCount">0</div>
+            <div class="stat-card-label">Verwarnungen</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value">🏆</div>
+            <div class="stat-card-label">Vertrauensstufe</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Picture Upload Section -->
+    <div class="profile-section">
+      <h2>
+        <span>📷</span>
+        Profilbild
+      </h2>
+      <div class="info-box success">
+        <span>💡</span>
+        <div>
+          <strong>Tipp:</strong> Wähle ein Bild unter 5MB. Erlaubte Formate: JPG, PNG, GIF, WebP
+        </div>
+      </div>
+      
+      <div class="file-input-wrapper">
+        <input type="file" id="profilePictureInput" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" />
+        <label for="profilePictureInput" class="file-input-label">
+          📁 Bild auswählen
+        </label>
+      </div>
+      
+      <div id="imagePreviewContainer" style="display: none; margin-top: 16px;">
+        <p style="font-weight: 600; margin-bottom: 8px;">Vorschau:</p>
+        <img id="imagePreview" class="image-preview" />
+        <div class="avatar-actions">
+          <button class="btn btn-primary btn-small" id="uploadBtn">⬆️ Hochladen</button>
+          <button class="btn btn-secondary btn-small" id="cancelUploadBtn">❌ Abbrechen</button>
+        </div>
+      </div>
+
+      <div id="currentPictureActions" style="display: none; margin-top: 16px;">
+        <button class="btn btn-danger btn-small" id="deletePictureBtn">🗑️ Profilbild löschen</button>
+      </div>
+    </div>
+
+    <!-- Personal Information Section -->
+    <div class="profile-section">
+      <h2>
+        <span>👤</span>
+        Persönliche Informationen
+      </h2>
+
+      <!-- View Mode -->
+      <div id="viewMode">
+        <div class="form-group">
+          <label>Benutzername</label>
+          <input type="text" id="viewUsername" disabled />
+        </div>
+        <div class="form-group">
+          <label>E-Mail</label>
+          <input type="email" id="viewEmail" disabled />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Adresse</label>
+            <input type="text" id="viewAddress" disabled placeholder="Noch keine Adresse hinterlegt" />
+          </div>
+          <div class="form-group">
+            <label>PLZ</label>
+            <input type="text" id="viewZip" disabled placeholder="Noch keine PLZ hinterlegt" />
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" id="editBtn">✏️ Profil bearbeiten</button>
+        </div>
+      </div>
+
+      <!-- Edit Mode -->
+      <div id="editMode" class="edit-mode">
+        <div class="info-box success">
+          <span>💡</span>
+          <div>
+            <strong>Datenschutz:</strong> Deine Adresse wird nicht öffentlich angezeigt. Nur die PLZ wird für die Umkreissuche verwendet.
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Adresse</label>
+            <input type="text" id="editAddress" placeholder="z.B. Musterstraße 123" />
+          </div>
+          <div class="form-group">
+            <label>PLZ *</label>
+            <input type="text" id="editZip" placeholder="z.B. 12345" maxlength="5" />
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" id="saveBtn">💾 Speichern</button>
+          <button class="btn btn-secondary" id="cancelBtn">❌ Abbrechen</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Section -->
+    <div class="profile-section">
+      <h2>
+        <span>🔒</span>
+        Sicherheit
+      </h2>
+      <div class="info-box warning">
+        <span>⚠️</span>
+        <div>
+          Passwort-Änderung wird in einer zukünftigen Version verfügbar sein.
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Aktuelles Passwort</label>
+        <input type="password" placeholder="••••••••" disabled />
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-secondary" disabled>🔑 Passwort ändern (Coming Soon)</button>
+      </div>
+    </div>
+
+    <!-- Account Management Section -->
+    <div class="profile-section">
+      <h2>
+        <span>⚙️</span>
+        Konto-Verwaltung
+      </h2>
+      <div class="info-box danger">
+        <span>⚠️</span>
+        <div>
+          <strong>Achtung:</strong> Das Löschen deines Kontos kann nicht rückgängig gemacht werden. Alle deine Daten, Einträge und Nachrichten werden permanent gelöscht.
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-danger" id="deleteAccountBtn">🗑️ Konto löschen</button>
+      </div>
+    </div>
+
+    <!-- Footer Info -->
+    <div style="text-align: center; padding: 24px; color: var(--text-light); font-size: 14px;">
+      <p>Deine Daten sind sicher und werden gemäß DSGVO geschützt 🔐</p>
+    </div>
   </div>
 
   <script>
-    const logoutBtn = document.getElementById('logoutBtn');
-    const loginLink = document.getElementById('loginLink');
-
-    const username = localStorage.getItem('username');
+    // Global variables
     const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+    
+    // Elements
+    const logoutBtn = document.getElementById('logoutBtn');
+    const navUser = document.getElementById('navUser');
+    const avatarLarge = document.getElementById('avatarLarge');
+    const avatarInitial = document.getElementById('avatarInitial');
+    const profileUsername = document.getElementById('profileUsername');
+    const profileEmail = document.getElementById('profileEmail');
+    const memberSince = document.getElementById('memberSince');
+    const warningsCount = document.getElementById('warningsCount');
+    const statusBadge = document.getElementById('statusBadge');
+    
+    // View mode elements
+    const viewMode = document.getElementById('viewMode');
+    const viewUsername = document.getElementById('viewUsername');
+    const viewEmail = document.getElementById('viewEmail');
+    const viewAddress = document.getElementById('viewAddress');
+    const viewZip = document.getElementById('viewZip');
+    
+    // Edit mode elements
+    const editMode = document.getElementById('editMode');
+    const editAddress = document.getElementById('editAddress');
+    const editZip = document.getElementById('editZip');
+    
+    // Buttons
+    const editBtn = document.getElementById('editBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+    
+    // Profile picture elements
+    const profilePictureInput = document.getElementById('profilePictureInput');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const cancelUploadBtn = document.getElementById('cancelUploadBtn');
+    const avatarUploadBtn = document.getElementById('avatarUploadBtn');
+    const deletePictureBtn = document.getElementById('deletePictureBtn');
+    const currentPictureActions = document.getElementById('currentPictureActions');
+    
+    // Alerts
+    const alertSuccess = document.getElementById('alertSuccess');
+    const alertError = document.getElementById('alertError');
 
+    // Store selected file
+    let selectedFile = null;
+
+    // Check authentication
     if (!username || !token) {
       window.location.href = './login.html';
-    } else {
-      loginLink.style.display = 'none';
-      document.getElementById('username').textContent = username;
-      document.getElementById('status').textContent = 'eingeloggt ✅';
     }
 
-    logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('token');
-      localStorage.removeItem('username');
-      window.location.href = './login.html';
+    // Initialize
+    navUser.textContent = `Hallo, ${username}`;
+    
+    // Set avatar initial
+    const initial = username.charAt(0).toUpperCase();
+    avatarInitial.textContent = initial;
+
+    // Load user profile data
+    async function loadProfile() {
+      try {
+        const response = await fetch('/auth/profile', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to load profile');
+        }
+
+        const data = await response.json();
+        
+        // Update profile header
+        profileUsername.textContent = data.username || username;
+        profileEmail.textContent = data.email || 'Keine E-Mail';
+        
+        // Format member since date
+        if (data.createdAt) {
+          const date = new Date(data.createdAt);
+          memberSince.textContent = date.toLocaleDateString('de-DE', {
+            year: 'numeric',
+            month: 'long'
+          });
+        }
+        
+        // Update warnings count
+        warningsCount.textContent = data.warnings || 0;
+        
+        // Update status badge
+        if (data.isBanned) {
+          statusBadge.innerHTML = '<span>🚫</span> Gesperrt';
+          statusBadge.style.background = 'rgba(244, 67, 54, 0.3)';
+        } else if (data.warnings > 2) {
+          statusBadge.innerHTML = '<span>⚠️</span> Verwarnt';
+          statusBadge.style.background = 'rgba(255, 152, 0, 0.3)';
+        }
+        
+        // Update view mode fields
+        viewUsername.value = data.username || '';
+        viewEmail.value = data.email || '';
+        viewAddress.value = data.address || '';
+        viewZip.value = data.zip || '';
+        
+        // Update profile picture
+        updateProfilePicture(data.profilePicture);
+        
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        showError('Fehler beim Laden des Profils');
+      }
+    }
+
+    // Update profile picture display
+    function updateProfilePicture(pictureUrl) {
+      if (pictureUrl) {
+        // Show image
+        const img = document.createElement('img');
+        img.src = pictureUrl;
+        img.alt = 'Profilbild';
+        
+        // Clear existing content
+        const existingImg = avatarLarge.querySelector('img');
+        if (existingImg) {
+          existingImg.remove();
+        }
+        
+        avatarLarge.insertBefore(img, avatarLarge.firstChild);
+        avatarInitial.style.display = 'none';
+        
+        // Show delete button
+        currentPictureActions.style.display = 'block';
+      } else {
+        // Show initial
+        const existingImg = avatarLarge.querySelector('img');
+        if (existingImg) {
+          existingImg.remove();
+        }
+        avatarInitial.style.display = 'block';
+        
+        // Hide delete button
+        currentPictureActions.style.display = 'none';
+      }
+    }
+
+    // Show/hide alerts
+    function showSuccess(message) {
+      alertSuccess.textContent = message;
+      alertSuccess.classList.add('show');
+      alertError.classList.remove('show');
+      setTimeout(() => alertSuccess.classList.remove('show'), 5000);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showError(message) {
+      alertError.textContent = message;
+      alertError.classList.add('show');
+      alertSuccess.classList.remove('show');
+      setTimeout(() => alertError.classList.remove('show'), 5000);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Edit mode toggle
+    editBtn.addEventListener('click', () => {
+      viewMode.classList.add('hidden');
+      editMode.classList.add('active');
+      
+      // Pre-fill edit fields with current values
+      editAddress.value = viewAddress.value;
+      editZip.value = viewZip.value;
+      editAddress.focus();
     });
+
+    cancelBtn.addEventListener('click', () => {
+      viewMode.classList.remove('hidden');
+      editMode.classList.remove('active');
+    });
+
+    // Save profile changes
+    saveBtn.addEventListener('click', async () => {
+      const address = editAddress.value.trim();
+      const zip = editZip.value.trim();
+
+      // Validation
+      if (!zip) {
+        showError('Bitte gib eine PLZ ein');
+        return;
+      }
+
+      if (zip.length !== 5 || !/^\d+$/.test(zip)) {
+        showError('PLZ muss 5 Ziffern haben');
+        return;
+      }
+
+      try {
+        const response = await fetch('/auth/profile', {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ address, zip })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Update fehlgeschlagen');
+        }
+
+        const data = await response.json();
+        
+        // Update view mode fields
+        viewAddress.value = data.address || '';
+        viewZip.value = data.zip || '';
+        
+        // Switch back to view mode
+        viewMode.classList.remove('hidden');
+        editMode.classList.remove('active');
+        
+        showSuccess('✅ Profil erfolgreich aktualisiert!');
+        
+      } catch (error) {
+        console.error('Error saving profile:', error);
+        showError(error.message || 'Fehler beim Speichern des Profils');
+      }
+    });
+
+    // Delete account
+    deleteAccountBtn.addEventListener('click', () => {
+      const confirmed = confirm(
+        '⚠️ ACHTUNG: Möchtest du dein Konto wirklich löschen?\n\n' +
+        'Diese Aktion kann nicht rückgängig gemacht werden.\n' +
+        'Alle deine Daten, Einträge und Nachrichten werden permanent gelöscht.\n\n' +
+        'Klicke OK um fortzufahren oder Abbrechen um zurückzugehen.'
+      );
+      
+      if (confirmed) {
+        const doubleConfirm = confirm(
+          '🚨 LETZTE WARNUNG!\n\n' +
+          'Bist du dir absolut sicher?\n' +
+          'Dein Konto und alle Daten werden unwiderruflich gelöscht!'
+        );
+        
+        if (doubleConfirm) {
+          // TODO: Implement account deletion API endpoint
+          alert('⚠️ Account-Löschung wird in einer zukünftigen Version implementiert.\n\nBitte kontaktiere vorerst den Support.');
+        }
+      }
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', () => {
+      if (confirm('Möchtest du dich wirklich abmelden?')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        window.location.href = './login.html';
+      }
+    });
+
+    // Profile picture file selection
+    profilePictureInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      
+      if (!file) {
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        showError('Nur Bilddateien sind erlaubt (JPEG, PNG, GIF, WebP)');
+        profilePictureInput.value = '';
+        return;
+      }
+
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        showError('Bild ist zu groß. Maximale Größe: 5MB');
+        profilePictureInput.value = '';
+        return;
+      }
+
+      // Show preview
+      selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imagePreview.src = e.target.result;
+        imagePreviewContainer.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Click on avatar to trigger file input
+    avatarUploadBtn.addEventListener('click', () => {
+      profilePictureInput.click();
+    });
+
+    // Cancel upload
+    cancelUploadBtn.addEventListener('click', () => {
+      selectedFile = null;
+      profilePictureInput.value = '';
+      imagePreviewContainer.style.display = 'none';
+    });
+
+    // Upload profile picture
+    uploadBtn.addEventListener('click', async () => {
+      if (!selectedFile) {
+        showError('Bitte wähle zuerst ein Bild aus');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('profilePicture', selectedFile);
+
+      try {
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = '⏳ Wird hochgeladen...';
+
+        const response = await fetch('/auth/profile/picture', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Upload fehlgeschlagen');
+        }
+
+        const data = await response.json();
+        
+        // Update avatar
+        updateProfilePicture(data.profilePicture);
+        
+        // Clear preview
+        selectedFile = null;
+        profilePictureInput.value = '';
+        imagePreviewContainer.style.display = 'none';
+        
+        showSuccess('✅ Profilbild erfolgreich hochgeladen!');
+        
+      } catch (error) {
+        console.error('Error uploading picture:', error);
+        showError(error.message || 'Fehler beim Hochladen des Bildes');
+      } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = '⬆️ Hochladen';
+      }
+    });
+
+    // Delete profile picture
+    deletePictureBtn.addEventListener('click', async () => {
+      if (!confirm('Möchtest du dein Profilbild wirklich löschen?')) {
+        return;
+      }
+
+      try {
+        deletePictureBtn.disabled = true;
+        deletePictureBtn.textContent = '⏳ Wird gelöscht...';
+
+        const response = await fetch('/auth/profile/picture', {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Löschen fehlgeschlagen');
+        }
+
+        // Update avatar to show initial
+        updateProfilePicture(null);
+        
+        showSuccess('✅ Profilbild erfolgreich gelöscht!');
+        
+      } catch (error) {
+        console.error('Error deleting picture:', error);
+        showError(error.message || 'Fehler beim Löschen des Bildes');
+      } finally {
+        deletePictureBtn.disabled = false;
+        deletePictureBtn.textContent = '🗑️ Profilbild löschen';
+      }
+    });
+
+    // Load profile on page load
+    loadProfile();
   </script>
 </body>
 </html>

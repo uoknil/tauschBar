@@ -4,76 +4,61 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>tauschBar – Registrierung</title>
-    <link rel="stylesheet" href="./style.css" />
-    <link rel="stylesheet" href="./style2.css" />
+    <link rel="stylesheet" href="./landing-page.css" />
+    <link rel="stylesheet" href="./app-styles.css" />
   </head>
   <body>
-    <nav class="nav">
-      <a class="brand" href="./dashboard.html">tauschBar</a>
-
-      <div class="links">
-        <a href="./dashboard.html">Dashboard</a>
-        <a href="./login.html" id="loginLink">Login</a>
-        <button id="logoutBtn" class="linkBtn">Logout</button>
+    <nav class="app-nav">
+      <div class="app-nav-container">
+        <a class="brand" href="/">tauschBar</a>
+        <div class="nav-links">
+          <a href="./login.html">Login</a>
+          <a href="./register.html">Registrieren</a>
+        </div>
       </div>
     </nav>
 
-    <h1>Registrierung</h1>
-
-    <form id="registerForm" style="padding: 0 20px">
-      <div>
-        <label>Username</label><br />
-        <input id="username" type="text" required />
+    <div class="page-container-narrow">
+      <div class="page-header">
+        <h1 class="page-title">Account erstellen</h1>
+        <p class="page-subtitle">Werde Teil der tauschBar Community</p>
       </div>
-      <br />
 
-      <div>
-        <label>Email</label><br />
-        <input id="email" type="email" required />
+      <div class="app-card">
+        <form id="registerForm" class="app-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input id="username" type="text" required placeholder="Wähle einen Username" />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input id="email" type="email" required placeholder="deine@email.com" />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Passwort</label>
+            <input id="password" type="password" required placeholder="Mindestens 6 Zeichen" />
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Kostenlos registrieren</button>
+        </form>
+
+        <div id="msg" style="margin-top: 20px;"></div>
+
+        <p style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e5e5;">
+          Schon registriert? <a href="./login.html" style="color: var(--primary-color); font-weight: 600;">Zum Login</a>
+        </p>
       </div>
-      <br />
-
-      <div>
-        <label>Passwort</label><br />
-        <input id="password" type="password" required />
-      </div>
-      <br />
-
-      <button type="submit">Account erstellen</button>
-    </form>
-
-    <p id="msg" style="padding: 0 20px"></p>
-
-    <p style="padding: 0 20px">
-      Schon registriert? <a href="./login.html">Zum Login</a>
-    </p>
+    </div>
 
     <script>
-      const logoutBtn = document.getElementById('logoutBtn');
-      const loginLink = document.getElementById('loginLink');
-
-      const token = localStorage.getItem('token');
-      const usernameStored = localStorage.getItem('username');
-
-      // Navbar-Logik
-      if (token && usernameStored) {
-        loginLink.style.display = 'none';
-      } else {
-        logoutBtn.style.display = 'none';
-      }
-
-      logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('username');
-        window.location.href = './login.html';
-      });
-
       const form = document.getElementById('registerForm');
       const msg = document.getElementById('msg');
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        msg.textContent = 'Registrierung...';
+        msg.innerHTML = '<div class="alert alert-info">Registrierung läuft...</div>';
 
         const username = document.getElementById('username').value.trim();
         const email = document.getElementById('email').value.trim();
@@ -89,14 +74,16 @@
           const data = await res.json();
 
           if (!res.ok) {
-            msg.textContent = data.message || 'Registrierung fehlgeschlagen.';
+            msg.innerHTML = `<div class="alert alert-error">${data.message || 'Registrierung fehlgeschlagen.'}</div>`;
             return;
           }
 
-          msg.textContent = 'Erfolgreich registriert ✅ Jetzt einloggen.';
-          window.location.href = './login.html';
+          msg.innerHTML = '<div class="alert alert-success">Erfolgreich registriert! Weiterleitung zum Login...</div>';
+          setTimeout(() => {
+            window.location.href = './login.html';
+          }, 1000);
         } catch (err) {
-          msg.textContent = 'Netzwerkfehler. Läuft der Server?';
+          msg.innerHTML = '<div class="alert alert-error">Netzwerkfehler. Läuft der Server?</div>';
         }
       });
     </script>

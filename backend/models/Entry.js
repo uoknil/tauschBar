@@ -18,7 +18,7 @@ const EntrySchema = new mongoose.Schema({
     required: true
   },
 
-  // Standort & Zeitraum (MR02 / MR03 / MR04)
+  // Standort (MR02 / MR03 / MR04)
   zip: {
     type: String,
     required: true,
@@ -26,11 +26,11 @@ const EntrySchema = new mongoose.Schema({
   },
   availableFrom: {
     type: Date,
-    required: true
+    default: Date.now
   },
   availableTo: {
     type: Date,
-    required: true
+    default: Date.now
   },
 
   // Moderation

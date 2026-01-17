@@ -4,27 +4,38 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>tauschBar – Moderation</title>
-  <link rel="stylesheet" href="./style.css" />
-  <link rel="stylesheet" href="./style2.css" />
+  <link rel="stylesheet" href="./landing-page.css" />
+  <link rel="stylesheet" href="./app-styles.css" />
 </head>
 <body>
-  <nav class="nav">
-    <a class="brand" href="./dashboard.html">tauschBar</a>
-    <div class="links">
-      <a href="./dashboard.html">Dashboard</a>
-      <a href="./moderation.html">Moderation</a>
+  <nav class="app-nav">
+    <div class="app-nav-container">
+      <a class="brand" href="./dashboard.html">tauschBar</a>
+      <div class="nav-links">
+        <a href="./dashboard.html">Dashboard</a>
+        <a href="./moderation.html">Moderation</a>
+      </div>
     </div>
   </nav>
 
-  <h1>Moderation – Meldungen</h1>
+  <div class="page-container">
+    <div class="page-header">
+      <h1 class="page-title">🛡️ Moderation</h1>
+      <p class="page-subtitle">Verwalte gemeldete Einträge und setze Maßnahmen</p>
+    </div>
 
-  <div style="padding: 0 20px;">
-    <p><strong>Moderations-Token</strong> </p>
-    <input id="modToken" placeholder="MOD_TOKEN eingeben..." style="width:320px;" />
-    <button id="loadBtn">Meldungen laden</button>
+    <div class="app-card" style="margin-bottom: 32px;">
+      <h3 style="font-size: 18px; font-weight: 700; margin: 0 0 16px 0;">🔐 Authentifizierung</h3>
+      <div class="form-group">
+        <label for="modToken">Moderations-Token</label>
+        <input id="modToken" placeholder="MOD_TOKEN eingeben..." />
+      </div>
+      <button id="loadBtn" class="btn btn-primary">Meldungen laden</button>
+    </div>
+
+    <h2 style="font-size: 24px; font-weight: 700; margin: 0 0 20px 0;">📋 Gemeldete Einträge</h2>
+    <ul id="reports" class="app-list"></ul>
   </div>
-
-  <ul id="reports" style="margin-top:16px;"></ul>
 
   <script>
     const reportsUl = document.getElementById('reports');

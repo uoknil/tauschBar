@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tauschBar – Nachbarschaftshilfe ohne Geld</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./landing-page.css" />
+  <script src="./categories.js"></script>
+</head>
+<body class="landing-body">
+  
+  <!-- Navigation -->
+  <nav class="landing-nav">
+    <div class="landing-nav-container">
+      <!-- Logo -->
+      <a href="/" class="landing-logo">
+        <strong>tauschBar</strong>
+      </a>
+
+      <!-- Suchfeld  -->
+      <div class="landing-search">
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="2"/>
+          <path d="M14 14L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input type="text" id="landingSearchInput" placeholder="Was suchst du..." />
+      </div>
+
+      <!-- Rechte Navigation -->
+      <div class="landing-nav-links">
+        <a href="./register-modal.html" class="nav-link">Registriere dich</a>
+        <a href="./login-modal.html" class="nav-link">Einloggen</a>
+        <button class="nav-menu-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
+            <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+            <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section  -->
+  <section class="hero-section">
+    <!-- Animated Background Elements -->
+    <div class="hero-bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+
+    <div class="hero-container hero-centered">
+      
+      <!-- Zentrierter Hero Content -->
+      <div class="hero-content-center animate-fade-in">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          NACHBARSCHAFTSHILFE
+        </div>
+        
+        <h1 class="hero-title-large">
+          <span class="title-line">tauschBar –</span>
+          <span class="title-line title-gradient">Nachbarschaft</span>
+          <span class="title-line">neu gedacht</span>
+        </h1>
+        
+        <p class="hero-description-large">
+          Die Plattform für lokalen Tausch von Fähigkeiten, Werkzeugen und Dienstleistungen.<br/>
+          Eine Hand wäscht die andere – einfach, fair und in der Nähe.
+        </p>
+        
+        <!-- CTA Buttons -->
+        <div class="hero-buttons-center">
+          <a href="./register-modal.html" class="btn-primary btn-glow btn-large-hero">
+            <span>Jetzt kostenlos starten</span>
+            <svg class="btn-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <a href="#mehr-erfahren" class="btn-secondary btn-glass btn-large-hero">
+            <span>Mehr erfahren</span>
+          </a>
+        </div>
+        
+        <!-- Trust Indicators -->
+        <div class="hero-trust">
+          <div class="trust-item">
+            <span class="trust-icon">✓</span>
+            <span class="trust-text">Kostenlos</span>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon">✓</span>
+            <span class="trust-text">Sicher</span>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon">✓</span>
+            <span class="trust-text">Lokal</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Trust Section -->
+  <section class="trust-section">
+    <div class="trust-container">
+      <div class="trust-badge">🏆 VERTRAUENSWÜRDIG</div>
+      <h2>Warum tauschBar die beste Wahl ist</h2>
+      <p class="trust-subtitle">Über 500 Nutzer vertrauen bereits auf unsere Plattform</p>
+      
+      <div class="trust-stats">
+        <div class="trust-stat">
+          <div class="trust-icon">🎯</div>
+          <div class="trust-number" data-target="98">0</div>
+          <div class="trust-label">% Match-Rate</div>
+        </div>
+        <div class="trust-stat">
+          <div class="trust-icon">⚡</div>
+          <div class="trust-number" data-target="24">0</div>
+          <div class="trust-label">Stunden Ø Antwortzeit</div>
+        </div>
+        <div class="trust-stat">
+          <div class="trust-icon">✨</div>
+          <div class="trust-number" data-target="4.8">0</div>
+          <div class="trust-label">★ Bewertung</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="categories-section">
+    <div class="categories-container">
+      <div class="section-header">
+        <h2 class="section-title">Entdecke alle Kategorien</h2>
+        <p class="section-subtitle">Von Handwerk bis IT – finde genau das, was du suchst</p>
+      </div>
+      
+      <div class="categories-grid" id="categoriesGrid">
+        <!-- Kategorien werden dynamisch aus categories.js geladen -->
+      </div>
+      
+      <div style="text-align: center; margin-top: 48px;">
+        <a href="./register-modal.html" class="btn-primary">Jetzt kostenlos registrieren</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section" id="mehr-erfahren">
+    <div class="features-container">
+      <div class="section-header">
+        <h2 class="section-title">Wie funktioniert tauschBar?</h2>
+        <p class="section-subtitle">In nur 4 einfachen Schritten zum erfolgreichen Tausch</p>
+      </div>
+      
+      <div class="features-grid">
+        
+        <div class="feature-card card-hover">
+          <div class="feature-number">01</div>
+          <div class="feature-icon-wrapper">
+            <div class="feature-icon">📝</div>
+          </div>
+          <h3>Eintrag erstellen</h3>
+          <p>Erstelle einen Eintrag mit deinem Angebot und deinem Gesuch – beides gemeinsam.</p>
+          <div class="feature-link">Mehr erfahren →</div>
+        </div>
+
+        <div class="feature-card card-hover">
+          <div class="feature-number">02</div>
+          <div class="feature-icon-wrapper">
+            <div class="feature-icon">🎯</div>
+          </div>
+          <h3>Automatisches Matching</h3>
+          <p>Unser intelligentes System findet passende Treffer in deiner Umgebung.</p>
+          <div class="feature-link">Mehr erfahren →</div>
+        </div>
+
+        <div class="feature-card card-hover">
+          <div class="feature-number">03</div>
+          <div class="feature-icon-wrapper">
+            <div class="feature-icon">💬</div>
+          </div>
+          <h3>Direkt kommunizieren</h3>
+          <p>Chatte mit anderen Nutzern und vereinbare Details für den Tausch.</p>
+          <div class="feature-link">Mehr erfahren →</div>
+        </div>
+
+        <div class="feature-card card-hover">
+          <div class="feature-number">04</div>
+          <div class="feature-icon-wrapper">
+            <div class="feature-icon">✅</div>
+          </div>
+          <h3>Sicher tauschen</h3>
+          <p>Moderation, Meldefunktion und Community-Feedback sorgen für Vertrauen.</p>
+          <div class="feature-link">Mehr erfahren →</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="cta-container">
+      <h2>Bereit, Teil der Community zu werden?</h2>
+      <p>Registriere dich jetzt kostenlos und starte deinen ersten Tausch.</p>
+      <a href="./register-modal.html" class="btn-primary btn-large">Kostenlos registrieren</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+  
+  <script>
+    // Counter Animation für Trust Section
+    function animateCounters() {
+      const counters = document.querySelectorAll('.trust-number');
+      
+      counters.forEach(counter => {
+        const target = parseFloat(counter.getAttribute('data-target'));
+        const duration = 2000;
+        const increment = target / (duration / 16);
+        let current = 0;
+        
+        const updateCounter = () => {
+          current += increment;
+          if (current < target) {
+            counter.textContent = Math.floor(current);
+            requestAnimationFrame(updateCounter);
+          } else {
+            counter.textContent = target % 1 === 0 ? target : target.toFixed(1);
+          }
+        };
+        
+        // Intersection Observer für Animation beim Scrollen
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              updateCounter();
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.5 });
+        
+        observer.observe(counter);
+      });
+    }
+    
+    // Scroll Animation für alle Sections
+    function initScrollAnimations() {
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+      };
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      }, observerOptions);
+      
+      document.querySelectorAll('.feature-card, .testimonial-card').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'all 0.8s ease';
+        observer.observe(el);
+      });
+    }
+    
+    // Landing Page Search Functionality
+    function initLandingSearch() {
+      const searchInput = document.getElementById('landingSearchInput');
+      if (!searchInput) return;
+
+      searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          const query = searchInput.value.trim();
+          if (query) {
+            // Weiterleitung zum Dashboard mit Suchparameter
+            window.location.href = `./dashboard.html?search=${encodeURIComponent(query)}`;
+          }
+        }
+      });
+
+      // Optional: Auto-complete Vorschläge anzeigen
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        if (query.length >= 2) {
+          // Hier könnte eine Auto-Complete Funktion implementiert werden
+          console.log('Suche nach:', query);
+        }
+      });
+    }
+
+    // Init on load
+    document.addEventListener('DOMContentLoaded', () => {
+      animateCounters();
+      initScrollAnimations();
+      loadCategories();
+      initLandingSearch();
+    });
+    
+    // Load Categories from categories.js
+    function loadCategories() {
+      const grid = document.getElementById('categoriesGrid');
+      if (!grid || !window.CATEGORIES) return;
+      
+      grid.innerHTML = window.CATEGORIES.map(cat => `
+        <div class="category-card">
+          <div class="category-icon">${cat.icon}</div>
+          <h4>${cat.name}</h4>
+          <p>${cat.description}</p>
+        </div>
+      `).join('');
+    }
+  </script>
+    <div class="footer-container">
+      <div class="footer-brand">
+        <strong>tauschBar</strong>
+        <p>Nachbarschaftshilfe ohne Geld</p>
+      </div>
+      
+      <div class="footer-links">
+        <div class="footer-column">
+          <h4>Plattform</h4>
+          <a href="./dashboard.html">Dashboard</a>
+          <a href="./register.html">Registrieren</a>
+          <a href="./login.html">Login</a>
+        </div>
+        
+        <div class="footer-column">
+          <h4>Ressourcen</h4>
+          <a href="#hilfe">Hilfe</a>
+          <a href="#faq">FAQ</a>
+          <a href="#kontakt">Kontakt</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; 2026 tauschBar. Alle Rechte vorbehalten.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

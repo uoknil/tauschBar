@@ -82,9 +82,9 @@ router.get('/matches/:category', async (req, res) => {
 // POST /entries
 router.post('/', requireAuth, async (req, res) => {
   try {
-    const { title, offerDescription, requestDescription, category, zip, availableFrom, availableTo } = req.body;
-    if (!title || !offerDescription || !requestDescription || !category || !zip || !availableFrom) {
-      return res.status(400).json({ message: 'Pflichtfelder fehlen (title, offerDescription, requestDescription, category, zip, availableFrom).' });
+    const { title, offerDescription, requestDescription, category, zip } = req.body;
+    if (!title || !offerDescription || !requestDescription || !category || !zip) {
+      return res.status(400).json({ message: 'Pflichtfelder fehlen (title, offerDescription, requestDescription, category, zip).' });
     }
 
     const z = String(zip).trim();
@@ -92,17 +92,8 @@ router.post('/', requireAuth, async (req, res) => {
       return res.status(400).json({ message: 'PLZ ungültig.' });
     }
 
-    // Datum prüfen + availableTo fallback
-    const fromDate = new Date(String(availableFrom));
-    const toDate = availableTo ? new Date(String(availableTo)) : fromDate;
-
-    if (isNaN(fromDate) || isNaN(toDate)) {
-      return res.status(400).json({ message: 'Datum ungültig.' });
-    }
-
-    if (toDate < fromDate) {
-      return res.status(400).json({ message: 'availableTo darf nicht vor availableFrom liegen.' });
-    }
+    // createdAt wird automatisch gesetzt, availableFrom und availableTo werden auf jetzt gesetzt
+    const now = new Date();
 
     const created = await Entry.create({
       title: String(title).trim(),
@@ -110,8 +101,8 @@ router.post('/', requireAuth, async (req, res) => {
       requestDescription: String(requestDescription).trim(),
       category: String(category).trim(),
       zip: z,
-      availableFrom: fromDate,
-      availableTo: toDate,
+      availableFrom: now,
+      availableTo: now,
       createdBy: req.user.userId
     });
 
