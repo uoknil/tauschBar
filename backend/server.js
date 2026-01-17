@@ -20,11 +20,13 @@ connectDB(process.env.MONGO_URI);
 app.use(express.json());
 
 // CORS (Frontend läuft auf gleichem Origin)
-app.use(cors({
-  origin: 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }),
+);
 
 // Frontend ausliefern
 app.use(express.static(path.join(__dirname, '../frontend')));
@@ -38,6 +40,7 @@ app.get('/api', (req, res) => {
 app.use('/entries', require('./routes/entry.routes'));
 app.use('/auth', require('./routes/auth.routes'));
 app.use('/reports', require('./routes/report.routes'));
+app.use('/messages', require('./routes/message.routes'));
 
 // Server starten
 app.listen(PORT, () => {
