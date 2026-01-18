@@ -517,9 +517,13 @@
 
             // NEU: Avatar oder Initiale
             const avatar = conv.partner.profilePicture
-              ? `<img src="${conv.partner.profilePicture}"
+              ? `<img src="http://localhost:3000${conv.partner.profilePicture}"
                       alt="Profilbild"
-                      style="width:44px;height:44px;border-radius:50%;object-fit:cover;">`
+                      style="width:44px;height:44px;border-radius:50%;object-fit:cover;"
+                      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                 <div class="conversation-avatar" style="display:none;">
+                   ${conv.partner.username.charAt(0).toUpperCase()}
+                 </div>`
               : `<div class="conversation-avatar">
                   ${conv.partner.username.charAt(0).toUpperCase()}
                 </div>`;

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat Profile Picture Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+    .success { background: #d4edda; border-color: #c3e6cb; }
+    .error { background: #f8d7da; border-color: #f5c6cb; }
+    .info { background: #d1ecf1; border-color: #bee5eb; }
+    button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    pre { background: #f5f5f5; padding: 10px; overflow-x: auto; font-size: 12px; }
+    .conversation-item { 
+      display: flex; 
+      align-items: center; 
+      padding: 10px; 
+      margin: 10px 0; 
+      background: white; 
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    .conversation-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+      margin-right: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Chat Profile Picture Test</h1>
+  
+  <div class="section info">
+    <h2>Test Scenario</h2>
+    <p>This tool tests the chat profile picture display fix.</p>
+    <p><strong>Fixed Issue:</strong> Profile pictures in chat conversations now include the full URL (http://localhost:3000)</p>
+  </div>
+
+  <div class="section">
+    <h2>1. Login</h2>
+    <button onclick="quickLogin()">🔐 Login as Test User</button>
+    <div id="loginResult"></div>
+  </div>
+
+  <div class="section">
+    <h2>2. Fetch Conversations (to see profile pictures)</h2>
+    <button onclick="fetchConversations()">💬 Get Conversations</button>
+    <div id="conversationsResult"></div>
+  </div>
+
+  <div class="section">
+    <h2>3. Visual Test - Simulated Conversation List</h2>
+    <p>This shows how profile pictures would appear in the chat:</p>
+    <div id="visualTest"></div>
+  </div>
+
+  <div class="section">
+    <h2>4. Create Test Data (if needed)</h2>
+    <button onclick="showTestDataInstructions()">📝 Show How to Create Test Data</button>
+    <div id="testDataInstructions"></div>
+  </div>
+
+  <script>
+    let currentToken = null;
+
+    async function quickLogin() {
+      const output = document.getElementById('loginResult');
+      output.innerHTML = '<p>⏳ Logging in...</p>';
+      
+      try {
+        const response = await fetch('http://localhost:3000/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            usernameOrEmail: 'test',
+            password: 'test123'
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Login failed: ' + response.status);
+        }
+        
+        const data = await response.json();
+        currentToken = data.token;
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username);
+        
+        output.innerHTML = '<p class="success">✅ Login erfolgreich!</p>';
+        output.innerHTML += '<p>Username: ' + data.username + '</p>';
+        
+      } catch (error) {
+        output.innerHTML = '<p class="error">❌ Login fehlgeschlagen: ' + error.message + '</p>';
+      }
+    }
+
+    async function fetchConversations() {
+      const output = document.getElementById('conversationsResult');
+      
+      if (!currentToken) {
+        output.innerHTML = '<p class="error">❌ Please login first!</p>';
+        return;
+      }
+      
+      output.innerHTML = '<p>⏳ Loading conversations...</p>';
+      
+      try {
+        const response = await fetch('http://localhost:3000/messages/conversations', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${currentToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch conversations: ' + response.status);
+        }
+        
+        const conversations = await response.json();
+        
+        if (conversations.length === 0) {
+          output.innerHTML = '<p class="info">ℹ️ No conversations found. You need to create some test data first.</p>';
+          output.innerHTML += '<p>Click "Show How to Create Test Data" below.</p>';
+          return;
+        }
+        
+        output.innerHTML = '<p class="success">✅ Found ' + conversations.length + ' conversation(s)</p>';
+        output.innerHTML += '<pre>' + JSON.stringify(conversations, null, 2) + '</pre>';
+        
+        // Display visual test
+        displayVisualTest(conversations);
+        
+      } catch (error) {
+        output.innerHTML = '<p class="error">❌ Error: ' + error.message + '</p>';
+      }
+    }
+
+    function displayVisualTest(conversations) {
+      const output = document.getElementById('visualTest');
+      output.innerHTML = '<h3>Rendered Conversations:</h3>';
+      
+      conversations.forEach(conv => {
+        const div = document.createElement('div');
+        div.className = 'conversation-item';
+        
+        // This is the FIXED code from chat.html
+        const avatar = conv.partner.profilePicture
+          ? `<img src="http://localhost:3000${conv.partner.profilePicture}"
+                  alt="Profilbild"
+                  style="width:44px;height:44px;border-radius:50%;object-fit:cover;"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+             <div class="conversation-avatar" style="display:none;">
+               ${conv.partner.username.charAt(0).toUpperCase()}
+             </div>`
+          : `<div class="conversation-avatar">
+               ${conv.partner.username.charAt(0).toUpperCase()}
+             </div>`;
+        
+        div.innerHTML = `
+          ${avatar}
+          <div style="flex: 1;">
+            <div style="font-weight: bold;">${conv.partner.username}</div>
+            <div style="color: #666; font-size: 14px;">${conv.lastMessage.content}</div>
+          </div>
+        `;
+        
+        output.appendChild(div);
+      });
+      
+      // Add test with mock data showing WITH profile picture
+      const mockDiv = document.createElement('div');
+      mockDiv.innerHTML = '<h3 style="margin-top: 20px;">Mock Test (with profile picture):</h3>';
+      output.appendChild(mockDiv);
+      
+      const mockConv = document.createElement('div');
+      mockConv.className = 'conversation-item';
+      mockConv.innerHTML = `
+        <img src="http://localhost:3000/uploads/profile-pictures/696c9d4e587a5f9901eb6eab_1768726503387.gif"
+             alt="Profilbild"
+             style="width:44px;height:44px;border-radius:50%;object-fit:cover;"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="conversation-avatar" style="display:none;">T</div>
+        <div style="flex: 1;">
+          <div style="font-weight: bold;">TestUser mit Profilbild</div>
+          <div style="color: #666; font-size: 14px;">Dies ist eine Test-Nachricht</div>
+        </div>
+      `;
+      output.appendChild(mockConv);
+    }
+
+    function showTestDataInstructions() {
+      const output = document.getElementById('testDataInstructions');
+      output.innerHTML = `
+        <div class="info">
+          <h3>📋 How to Create Test Data</h3>
+          <p><strong>Option 1: Use the actual app</strong></p>
+          <ol>
+            <li>Create another user account (register a second user)</li>
+            <li>Create an entry with one user</li>
+            <li>Start a chat conversation from another user</li>
+            <li>Send some messages back and forth</li>
+            <li>Upload profile pictures for both users</li>
+          </ol>
+          
+          <p><strong>Option 2: Use the debug tool</strong></p>
+          <ol>
+            <li>Open: <a href="http://localhost:3000/tmp_rovodev_debug_profile.html" target="_blank">Profile Debug Tool</a></li>
+            <li>Login and upload a profile picture</li>
+            <li>Create another user and upload their profile picture</li>
+            <li>Start a conversation between the users</li>
+          </ol>
+          
+          <p><strong>What the fix does:</strong></p>
+          <ul>
+            <li>✅ <strong>BEFORE:</strong> <code>&lt;img src="/uploads/..."&gt;</code> (relative path - causes 404)</li>
+            <li>✅ <strong>AFTER:</strong> <code>&lt;img src="http://localhost:3000/uploads/..."&gt;</code> (full URL - works!)</li>
+          </ul>
+        </div>
+      `;
+    }
+
+    // Auto-login on load
+    window.addEventListener('load', () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        currentToken = token;
+        document.getElementById('loginResult').innerHTML = 
+          '<p class="success">✅ Already logged in (token from localStorage)</p>';
+      }
+    });
+  </script>
+</body>
+</html>
