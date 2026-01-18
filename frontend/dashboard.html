@@ -196,17 +196,61 @@
           const canDelete = authorName && authorName === currentUsername;
 
           li.innerHTML = `
-          <strong>${e.title}</strong> (${e.category}) <small>${author}</small><br/>
-          <em>Angebot:</em> ${e.offerDescription}<br/>
-          <em>Gesuch:</em> ${e.requestDescription}<br/>
-          <small>📍 PLZ:</small> ${e.zip || '-'} | 
-          <small>📅 Erstellt:</small> ${new Date(e.createdAt).toLocaleDateString('de-DE', { year: 'numeric', month: 'long', day: 'numeric' })}<br/>
-          <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
-            ${canDelete ? `<button class="delBtn" data-id="${e._id}">Löschen</button>` : ''}
-            
-            ${!canDelete && e.createdBy?._id ? `<button class="contactBtn" data-id="${e._id}" data-owner="${e.createdBy._id}">💬 Kontakt</button>` : ''}
-          </div>
-        `;
+            <!-- Titel des Eintrags -->
+            <strong>${e.title}</strong> (${e.category})
+            <small>${author}</small><br/>
+
+            <!-- Beschreibung von Angebot und Gesuch -->
+            <em>Angebot:</em> ${e.offerDescription}<br/>
+            <em>Gesuch:</em> ${e.requestDescription}<br/>
+
+            <!-- Standort & Erstellungsdatum -->
+            <small>📍 PLZ:</small> ${e.zip || '-'} |
+            <small>📅 Erstellt:</small>
+            ${new Date(e.createdAt).toLocaleDateString(
+              'de-DE',
+              { year: 'numeric', month: 'long', day: 'numeric' }
+            )}<br/>
+
+            <!-- Aktions-Buttons für diesen Eintrag -->
+            <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+
+              <!-- Löschen-Button: nur sichtbar, wenn es der eigene Eintrag ist -->
+              ${
+                canDelete
+                  ? `<button class="delBtn" data-id="${e._id}">
+                      Löschen
+                    </button>`
+                  : ''
+              }
+
+              <!-- Kontakt + Melden: nur bei fremden Einträgen -->
+              ${
+                !canDelete && e.createdBy?._id
+                  ? `
+                    <!-- Kontakt-Button: öffnet Chat -->
+                    <button
+                      class="contactBtn"
+                      data-id="${e._id}"
+                      data-owner="${e.createdBy._id}"
+                    >
+                      💬 Kontakt
+                    </button>
+
+                    <!-- Melden-Button: startet Missbrauchsmeldung -->
+                    <button
+                      class="reportBtn"
+                      data-id="${e._id}"
+                    >
+                      ⚠️ Melden
+                    </button>
+                  `
+                  : ''
+              }
+
+            </div>
+          `;
+
 
           list.appendChild(li);
         }

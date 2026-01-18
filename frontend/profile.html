@@ -400,6 +400,14 @@
       </div>
     </div>
 
+    <p id="warningsInfo"
+      style="display:none; margin-top:8px; font-size:14px; opacity:0.9;">
+      ⚠️ Du hast Verwarnungen.<br>
+      <span style="font-size:13px;">
+        Details zu Verwarnungen können bei der Moderation angefragt werden.
+      </span>
+    </p>
+
     <!-- Profile Picture Upload Section -->
     <div class="profile-section">
       <h2>
@@ -600,60 +608,74 @@
 
     // Load user profile data
     async function loadProfile() {
-      try {
-        const response = await fetch('/auth/profile', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+    try {
+      // 👉 Profil-Daten des eingeloggten Users laden
+      // Backend-Endpoint: GET /auth/me
+      const response = await fetch('/auth/me', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-        if (!response.ok) {
-          throw new Error('Failed to load profile');
-        }
-
-        const data = await response.json();
-        
-        // Update profile header
-        profileUsername.textContent = data.username || username;
-        profileEmail.textContent = data.email || 'Keine E-Mail';
-        
-        // Format member since date
-        if (data.createdAt) {
-          const date = new Date(data.createdAt);
-          memberSince.textContent = date.toLocaleDateString('de-DE', {
-            year: 'numeric',
-            month: 'long'
-          });
-        }
-        
-        // Update warnings count
-        warningsCount.textContent = data.warnings || 0;
-        
-        // Update status badge
-        if (data.isBanned) {
-          statusBadge.innerHTML = '<span>🚫</span> Gesperrt';
-          statusBadge.style.background = 'rgba(244, 67, 54, 0.3)';
-        } else if (data.warnings > 2) {
-          statusBadge.innerHTML = '<span>⚠️</span> Verwarnt';
-          statusBadge.style.background = 'rgba(255, 152, 0, 0.3)';
-        }
-        
-        // Update view mode fields
-        viewUsername.value = data.username || '';
-        viewEmail.value = data.email || '';
-        viewAddress.value = data.address || '';
-        viewZip.value = data.zip || '';
-        
-        // Update profile picture
-        updateProfilePicture(data.profilePicture);
-        
-      } catch (error) {
-        console.error('Error loading profile:', error);
-        showError('Fehler beim Laden des Profils');
+      if (!response.ok) {
+        throw new Error('Failed to load profile');
       }
+
+      const data = await response.json();
+
+      // -------------------------
+      // Anzeige der Profildaten
+      // -------------------------
+
+      profileUsername.textContent = data.username || username;
+      profileEmail.textContent = data.email || 'Keine E-Mail';
+
+      // Mitglied seit
+      if (data.createdAt) {
+        const date = new Date(data.createdAt);
+        memberSince.textContent = date.toLocaleDateString('de-DE', {
+          year: 'numeric',
+          month: 'long'
+        });
+      }
+
+      // Verwarnungen anzeigen (DAS war das Ziel)
+      warningsCount.textContent = data.warnings || 0;
+
+      const warningsInfo = document.getElementById('warningsInfo');
+
+      if (data.warnings > 0) {
+        warningsInfo.style.display = 'block';
+      } else {
+        warningsInfo.style.display = 'none';
+      }
+
+      // Statusanzeige
+      if (data.isBanned) {
+        statusBadge.innerHTML = '<span>🚫</span> Gesperrt';
+        statusBadge.style.background = 'rgba(244, 67, 54, 0.3)';
+      } else if (data.warnings > 2) {
+        statusBadge.innerHTML = '<span>⚠️</span> Verwarnt';
+        statusBadge.style.background = 'rgba(255, 152, 0, 0.3)';
+      }
+
+      // View-Mode Felder
+      viewUsername.value = data.username || '';
+      viewEmail.value = data.email || '';
+      viewAddress.value = data.address || '';
+      viewZip.value = data.zip || '';
+
+      // Profilbild
+      updateProfilePicture(data.profilePicture);
+
+    } catch (error) {
+      console.error('Error loading profile:', error);
+      showError('Fehler beim Laden des Profils');
     }
+  }
+
 
     // Update profile picture display
     function updateProfilePicture(pictureUrl) {
