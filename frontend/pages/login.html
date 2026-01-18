@@ -4,13 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>tauschBar – Login</title>
-  <link rel="stylesheet" href="./landing-page.css" />
-  <link rel="stylesheet" href="./app-styles.css" />
+  <link rel="stylesheet" href="../css/main.css" />
 </head>
 <body>
   <nav class="app-nav">
     <div class="app-nav-container">
-      <a class="brand" href="/">tauschBar</a>
+      <a class="brand" href="../index.html">tauschBar</a>
       <div class="nav-links">
         <a href="./register.html">Registrieren</a>
         <a href="./login.html">Login</a>
@@ -77,8 +76,19 @@
         localStorage.setItem('username', data.username);
 
         msg.innerHTML = '<div class="alert alert-success">Erfolgreich eingeloggt! Weiterleitung...</div>';
+        
+        // Prüfe ob eine Return-URL gespeichert ist
+        const returnUrl = localStorage.getItem('returnUrl');
+        
         setTimeout(() => {
-          window.location.href = './dashboard.html';
+          if (returnUrl) {
+            // Return-URL vorhanden - lösche sie und leite dorthin weiter
+            localStorage.removeItem('returnUrl');
+            window.location.href = returnUrl;
+          } else {
+            // Keine Return-URL - gehe zum Dashboard
+            window.location.href = './dashboard.html';
+          }
         }, 500);
       } catch (err) {
         msg.innerHTML = '<div class="alert alert-error">Netzwerkfehler. Läuft der Server?</div>';

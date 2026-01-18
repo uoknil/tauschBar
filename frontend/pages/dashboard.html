@@ -4,21 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>tauschBar – Dashboard</title>
-    <link rel="stylesheet" href="./landing-page.css" />
-    <link rel="stylesheet" href="./app-styles.css" />
-    <script src="./categories.js"></script>
+    <link rel="stylesheet" href="../css/main.css" />
+    <script src="../js/categories.js"></script>
   </head>
   <body>
     <nav class="app-nav">
       <div class="app-nav-container">
-        <a class="brand" href="./dashboard.html">tauschBar</a>
-        <div class="nav-links">
+        <a class="brand" href="../index.html">tauschBar</a>
+        <div class="nav-links" id="dashboardNav">
           <span id="navUser" style="font-weight: 600;"></span>
           <a href="./dashboard.html">Dashboard</a>
-          <a href="./create-entry.html" class="btn-primary-nav">+ Eintrag erstellen</a>
-          <a href="./chat.html">Chat</a>
-          <a href="./profile.html">Profil</a>
+          <a href="./create-entry.html" class="btn-primary-nav" id="navCreateEntry">+ Eintrag erstellen</a>
+          <a href="./chat.html" id="navChat">Chat</a>
+          <a href="./profile.html" id="navProfile">Profil</a>
           <button id="logoutBtn" class="btn">Logout</button>
+          <!-- Für nicht eingeloggte User -->
+          <a href="./login.html" class="btn-primary-nav" id="navLogin" style="display: none;">Login</a>
+          <a href="./register.html" class="btn" id="navRegister" style="display: none;">Registrieren</a>
         </div>
       </div>
     </nav>
@@ -83,16 +85,41 @@
       const matchBadge = document.getElementById('matchBadge');
 
       // Standardmäßig nur Einträge von anderen anzeigen
-      let showMode = 'others'; // 'others' oder 'mine'
+      let showMode = 'others'; // 'others', 'mine', oder 'matches'
 
       const currentUsername = localStorage.getItem('username');
       const token = localStorage.getItem('token');
 
       // Login-Check + Navbar-Anzeige
       if (!currentUsername || !token) {
-        window.location.href = './login.html';
+        // Nicht eingeloggt - passe Navigation an
+        navUser.style.display = 'none';
+        document.getElementById('navCreateEntry').style.display = 'none';
+        document.getElementById('navChat').style.display = 'none';
+        document.getElementById('navProfile').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'none';
+        
+        // Zeige Login/Register stattdessen
+        document.getElementById('navLogin').style.display = 'inline';
+        document.getElementById('navRegister').style.display = 'inline';
+        
+        // Verstecke Matches-Button
+        const showMatchesBtn = document.getElementById('showMatchesBtn');
+        if (showMatchesBtn) {
+          showMatchesBtn.style.display = 'none';
+        }
+        
+        // Verstecke "Nur meine Einträge" Button
+        const onlyMineBtn = document.getElementById('onlyMineBtn');
+        if (onlyMineBtn) {
+          onlyMineBtn.style.display = 'none';
+        }
       } else {
+        // Eingeloggt - zeige eingeloggte Navigation
         navUser.textContent = `Hallo, ${currentUsername}`;
+        navUser.style.display = 'inline';
+        document.getElementById('navLogin').style.display = 'none';
+        document.getElementById('navRegister').style.display = 'none';
       }
 
       onlyMineBtn.textContent = `Nur von ${currentUsername}`;
@@ -119,6 +146,12 @@
 
       async function loadEntries() {
         list.innerHTML = '<li>Lade...</li>';
+
+        // Wenn wir im Matches-Modus sind, andere Logik
+        if (showMode === 'matches') {
+          await loadMatchesInMainList();
+          return;
+        }
 
         let entries = [];
         try {
@@ -195,10 +228,15 @@
           const author = authorName ? `von ${authorName}` : 'von (unbekannt)';
           const canDelete = authorName && authorName === currentUsername;
 
+          // Bestimme, ob es ein Angebot oder Gesuch ist
+          const isOffer = e.entryType === 'offer';
+          const typeIcon = isOffer ? '🎁' : '🔍';
+          const typeLabel = isOffer ? 'Angebot' : 'Gesuch';
+          const description = isOffer ? e.offerDescription : e.requestDescription;
+          
           li.innerHTML = `
-          <strong>${e.title}</strong> (${e.category}) <small>${author}</small><br/>
-          <em>Angebot:</em> ${e.offerDescription}<br/>
-          <em>Gesuch:</em> ${e.requestDescription}<br/>
+          <strong>${typeIcon} ${e.title}</strong> (${e.category}) <small>${author}</small><br/>
+          <em>${typeLabel}:</em> ${description || '-'}<br/>
           <small>📍 PLZ:</small> ${e.zip || '-'} | 
           <small>📅 Erstellt:</small> ${new Date(e.createdAt).toLocaleDateString('de-DE', { year: 'numeric', month: 'long', day: 'numeric' })}<br/>
           <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
@@ -212,7 +250,121 @@
         }
       }
 
+      async function loadMatchesInMainList() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          list.innerHTML = '<li>Bitte einloggen, um Matches zu sehen.</li>';
+          return;
+        }
+
+        // 1) Alle Entries holen
+        let entries = [];
+        try {
+          const res = await fetch('http://localhost:3000/entries');
+          entries = await res.json();
+        } catch {
+          list.innerHTML = '<li>Fehler: Server nicht erreichbar.</li>';
+          return;
+        }
+
+        // 2) Nur meine Entries
+        const myEntries = entries.filter(
+          (e) => e.createdBy && e.createdBy.username === currentUsername,
+        );
+        if (!myEntries.length) {
+          list.innerHTML = '<li>📭 Du hast noch keine Einträge erstellt.<br><small>Erstelle einen Eintrag, um Matches zu finden.</small></li>';
+          return;
+        }
+
+        // 3) Für jeden meiner Entries: /entries/:id/matches abfragen
+        const allMatchEntries = [];
+        const matchPairs = [];
+        
+        for (const e of myEntries) {
+          try {
+            const r = await fetch(
+              `http://localhost:3000/entries/${e._id}/matches`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              },
+            );
+            
+            if (!r.ok) {
+              console.error(`❌ Matches API Fehler für ${e._id}:`, r.status, r.statusText);
+              
+              // Bei 401 Unauthorized: Token ungültig -> ausloggen
+              if (r.status === 401) {
+                console.error('⚠️ Token ungültig - leite zu Login weiter');
+                alert('Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.');
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+                window.location.href = './login.html';
+                return;
+              }
+              
+              continue;
+            }
+            
+            const data = await r.json();
+            console.log(`✅ Matches für "${e.title}":`, data.count, 'gefunden');
+            
+            if (data.matches && data.matches.length) {
+              for (const m of data.matches) {
+                allMatchEntries.push(m);
+                matchPairs.push({ base: e, match: m });
+              }
+            }
+          } catch (err) {
+            console.error(`❌ Fehler beim Laden der Matches für ${e._id}:`, err);
+          }
+        }
+
+        // 4) Anzeigen
+        if (!allMatchEntries.length) {
+          list.innerHTML = '<li>🔍 Keine Matches gefunden.<br><small>Matches werden gefunden, wenn andere Einträge in der gleichen Kategorie und PLZ erstellt werden.</small></li>';
+          return;
+        }
+
+        list.innerHTML = '';
+
+        for (const item of matchPairs) {
+          const e = item.match; // Der Match-Eintrag
+          const baseEntry = item.base; // Mein Eintrag
+          
+          const li = document.createElement('li');
+
+          const authorName =
+            e.createdBy && e.createdBy.username ? e.createdBy.username : null;
+          const author = authorName ? `von ${authorName}` : 'von (unbekannt)';
+
+          // Bestimme, ob es ein Angebot oder Gesuch ist
+          const isOffer = e.entryType === 'offer';
+          const typeIcon = isOffer ? '🎁' : '🔍';
+          const typeLabel = isOffer ? 'Angebot' : 'Gesuch';
+          const description = isOffer ? e.offerDescription : e.requestDescription;
+          
+          li.innerHTML = `
+          <div style="background-color: #f0f9ff; padding: 12px; border-left: 4px solid #3b82f6; margin-bottom: 8px;">
+            <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">
+              <small style="color: #666;">💡 Match für deinen Eintrag: <strong>${baseEntry.title}</strong></small>
+            </div>
+            <strong>${typeIcon} ${e.title}</strong> (${e.category}) <small>${author}</small><br/>
+            <em>${typeLabel}:</em> ${description || '-'}<br/>
+            <small>📍 PLZ:</small> ${e.zip || '-'} | 
+            <small>📅 Erstellt:</small> ${new Date(e.createdAt).toLocaleDateString('de-DE', { year: 'numeric', month: 'long', day: 'numeric' })}<br/>
+            <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+              ${e.createdBy?._id ? `<button class="contactBtn" data-id="${e._id}" data-owner="${e.createdBy._id}">💬 Kontakt aufnehmen</button>` : ''}
+            </div>
+          </div>
+        `;
+
+          list.appendChild(li);
+        }
+      }
+
       async function loadMatchesForMyEntries() {
+        const matchesSection = document.getElementById('matchesSection');
+        matchesSection.style.display = 'block';
         matchesList.style.display = 'block';
         matchesTitle.style.display = 'block';
         matchesTitle.textContent = 'Matches';
@@ -253,14 +405,33 @@
                 headers: { Authorization: `Bearer ${token}` },
               },
             );
-            const data = await r.json().catch(() => ({}));
-            if (r.ok && data.matches && data.matches.length) {
+            
+            if (!r.ok) {
+              console.error(`❌ Matches API Fehler für ${e._id}:`, r.status, r.statusText);
+              
+              // Bei 401 Unauthorized: Token ungültig -> ausloggen
+              if (r.status === 401) {
+                console.error('⚠️ Token ungültig - leite zu Login weiter');
+                alert('Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.');
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+                window.location.href = './login.html';
+                return;
+              }
+              
+              continue;
+            }
+            
+            const data = await r.json();
+            console.log(`✅ Matches für "${e.title}":`, data.count, 'gefunden');
+            
+            if (data.matches && data.matches.length) {
               for (const m of data.matches) {
                 allMatches.push({ base: e, match: m });
               }
             }
-          } catch {
-            // ignorieren, wir wollen minimal bleiben
+          } catch (err) {
+            console.error(`❌ Fehler beim Laden der Matches für ${e._id}:`, err);
           }
         }
 
@@ -338,11 +509,25 @@
                 headers: { Authorization: `Bearer ${token}` },
               },
             );
-            const data = await r.json().catch(() => ({}));
-            if (r.ok && data.matches && data.matches.length) {
+            
+            if (!r.ok) {
+              console.error(`❌ Badge: Matches API Fehler für ${e._id}:`, r.status);
+              
+              // Bei 401: Silently fail (Badge ist nicht kritisch)
+              if (r.status === 401) {
+                console.error('⚠️ Badge: Token ungültig');
+              }
+              
+              continue;
+            }
+            
+            const data = await r.json();
+            if (data.matches && data.matches.length) {
               count += data.matches.length;
             }
-          } catch {}
+          } catch (err) {
+            console.error(`❌ Badge: Fehler für ${e._id}:`, err);
+          }
         }
 
         // Badge zeigt "du hast aktuell X Match-Treffer"
@@ -361,6 +546,18 @@
             return;
           }
 
+          // Prüfe ob User eingeloggt ist
+          const token = localStorage.getItem('token');
+          if (!token) {
+            // Nicht eingeloggt - speichere Return-URL und leite zu Login
+            const returnUrl = `./chat.html?entry=${entryId}&partner=${ownerId}`;
+            localStorage.setItem('returnUrl', returnUrl);
+            alert('Bitte melde dich an, um den Kontakt aufzunehmen.');
+            window.location.href = './login.html';
+            return;
+          }
+
+          // Eingeloggt - gehe direkt zum Chat
           window.location.href = `./chat.html?entry=${entryId}&partner=${ownerId}`;
           return;
         }
@@ -444,9 +641,20 @@
 
       // Controls
       showMatchesBtn.addEventListener('click', () => {
-        // beim Öffnen als "gesehen" markieren
-        setBadgeCount(0);
-        loadMatchesForMyEntries();
+        showMode = 'matches';
+        
+        // Button-Styling aktualisieren
+        showMatchesBtn.classList.add('btn-primary');
+        showMatchesBtn.classList.remove('btn-secondary');
+        onlyMineBtn.classList.add('btn-secondary');
+        onlyMineBtn.classList.remove('btn-primary');
+        showOthersBtn.classList.add('btn-secondary');
+        showOthersBtn.classList.remove('btn-primary');
+        
+        // Matches-Sektion ausblenden, da wir jetzt in der Hauptliste anzeigen
+        document.getElementById('matchesSection').style.display = 'none';
+        
+        loadEntries();
       });
 
       onlyMineBtn.addEventListener('click', () => {
@@ -455,6 +663,12 @@
         onlyMineBtn.classList.remove('btn-secondary');
         showOthersBtn.classList.add('btn-secondary');
         showOthersBtn.classList.remove('btn-primary');
+        showMatchesBtn.classList.add('btn-secondary');
+        showMatchesBtn.classList.remove('btn-primary');
+        
+        // Matches-Sektion ausblenden
+        document.getElementById('matchesSection').style.display = 'none';
+        
         loadEntries();
       });
 
@@ -464,6 +678,12 @@
         showOthersBtn.classList.remove('btn-secondary');
         onlyMineBtn.classList.add('btn-secondary');
         onlyMineBtn.classList.remove('btn-primary');
+        showMatchesBtn.classList.add('btn-secondary');
+        showMatchesBtn.classList.remove('btn-primary');
+        
+        // Matches-Sektion ausblenden
+        document.getElementById('matchesSection').style.display = 'none';
+        
         loadEntries();
       });
 
@@ -471,18 +691,43 @@
       categorySelect.addEventListener('change', loadEntries);
       zipInput.addEventListener('input', loadEntries);
 
-      // Check URL parameters and pre-fill search field
-      const urlParams = new URLSearchParams(window.location.search);
-      const searchParam = urlParams.get('search');
-      if (searchParam) {
-        searchInput.value = searchParam;
-      }
-
       // Init
       loadCategoryOptions();
       loadBadgeCount();
-      loadEntries();
-      refreshMatchBadge();
+      
+      // Check URL parameters and pre-fill search/filter fields
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      // Suchbegriff aus URL
+      const searchParam = urlParams.get('q') || urlParams.get('search');
+      if (searchParam) {
+        searchInput.value = searchParam;
+        console.log('🔍 Suchbegriff aus URL:', searchParam);
+      }
+      
+      // PLZ aus URL
+      const zipParam = urlParams.get('zip');
+      if (zipParam) {
+        zipInput.value = zipParam;
+        console.log('📍 PLZ aus URL:', zipParam);
+      }
+      
+      // Kategorie aus URL
+      const categoryParam = urlParams.get('category');
+      if (categoryParam) {
+        // Setze Kategorie nachdem Optionen geladen sind
+        setTimeout(() => {
+          categorySelect.value = categoryParam;
+          console.log('📂 Kategorie aus URL:', categoryParam);
+          // loadEntries wird unten einmalig aufgerufen
+        }, 50);
+      }
+
+      // Warte kurz damit Kategorie gesetzt werden kann, dann lade Einträge
+      setTimeout(() => {
+        loadEntries();
+        refreshMatchBadge();
+      }, 100);
     </script>
   </body>
 </html>
