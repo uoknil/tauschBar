@@ -57,7 +57,11 @@
       const data = await res.json().catch(() => ([]));
 
       if (!res.ok) {
-        reportsUl.innerHTML = `<li>${data.message || 'Fehler beim Laden.'}</li>`;
+        // Escape HTML to prevent XSS
+        const errorLi = document.createElement('li');
+        errorLi.textContent = data.message || 'Fehler beim Laden.';
+        reportsUl.innerHTML = '';
+        reportsUl.appendChild(errorLi);
         return;
       }
 
@@ -68,6 +72,14 @@
 
       reportsUl.innerHTML = '';
 
+      // Helper function to escape HTML and prevent XSS
+      function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
       for (const r of data) {
         const li = document.createElement('li');
 
@@ -77,11 +89,11 @@
         const reportId = r._id;
 
         li.innerHTML = `
-          <strong>Status:</strong> ${r.status}<br/>
-          <strong>Eintrag:</strong> ${entryTitle} (${entryCat})<br/>
-          <strong>Gemeldet von:</strong> ${reporter}<br/>
-          <strong>Grund:</strong> ${r.reason}<br/>
-          <strong>Details:</strong> ${r.details || '-'}<br/>
+          <strong>Status:</strong> ${escapeHtml(r.status)}<br/>
+          <strong>Eintrag:</strong> ${escapeHtml(entryTitle)} (${escapeHtml(entryCat)})<br/>
+          <strong>Gemeldet von:</strong> ${escapeHtml(reporter)}<br/>
+          <strong>Grund:</strong> ${escapeHtml(r.reason)}<br/>
+          <strong>Details:</strong> ${escapeHtml(r.details) || '-'}<br/>
           <small>${new Date(r.createdAt).toLocaleString()}</small><br/>
 
           <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">

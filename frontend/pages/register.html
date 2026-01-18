@@ -73,7 +73,12 @@
           const data = await res.json();
 
           if (!res.ok) {
-            msg.innerHTML = `<div class="alert alert-error">${data.message || 'Registrierung fehlgeschlagen.'}</div>`;
+            // Escape HTML to prevent XSS
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'alert alert-error';
+            errorMessage.textContent = data.message || 'Registrierung fehlgeschlagen.';
+            msg.innerHTML = '';
+            msg.appendChild(errorMessage);
             return;
           }
 

@@ -220,12 +220,20 @@
 
         list.innerHTML = '';
 
+        // Helper function to escape HTML and prevent XSS
+        function escapeHtml(text) {
+          if (!text) return '';
+          const div = document.createElement('div');
+          div.textContent = text;
+          return div.innerHTML;
+        }
+
         for (const e of filtered) {
           const li = document.createElement('li');
 
           const authorName =
             e.createdBy && e.createdBy.username ? e.createdBy.username : null;
-          const author = authorName ? `von ${authorName}` : 'von (unbekannt)';
+          const author = authorName ? `von ${escapeHtml(authorName)}` : 'von (unbekannt)';
           const canDelete = authorName && authorName === currentUsername;
 
           // Bestimme, ob es ein Angebot oder Gesuch ist
@@ -236,15 +244,15 @@
           
           li.innerHTML = `
             <!-- Titel des Eintrags -->
-            <strong>${e.title}</strong> (${e.category})
+            <strong>${escapeHtml(e.title)}</strong> (${escapeHtml(e.category)})
             <small>${author}</small><br/>
 
             <!-- Beschreibung von Angebot und Gesuch -->
-            <em>Angebot:</em> ${e.offerDescription}<br/>
-            <em>Gesuch:</em> ${e.requestDescription}<br/>
+            <em>Angebot:</em> ${escapeHtml(e.offerDescription)}<br/>
+            <em>Gesuch:</em> ${escapeHtml(e.requestDescription)}<br/>
 
             <!-- Standort & Erstellungsdatum -->
-            <small>📍 PLZ:</small> ${e.zip || '-'} |
+            <small>📍 PLZ:</small> ${escapeHtml(e.zip) || '-'} |
             <small>📅 Erstellt:</small>
             ${new Date(e.createdAt).toLocaleDateString(
               'de-DE',

@@ -67,7 +67,12 @@
         const data = await res.json();
 
         if (!res.ok) {
-          msg.innerHTML = `<div class="alert alert-error">${data.message || 'Login fehlgeschlagen.'}</div>`;
+          // Escape HTML to prevent XSS
+          const errorMessage = document.createElement('div');
+          errorMessage.className = 'alert alert-error';
+          errorMessage.textContent = data.message || 'Login fehlgeschlagen.';
+          msg.innerHTML = '';
+          msg.appendChild(errorMessage);
           return;
         }
 

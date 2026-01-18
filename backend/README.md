@@ -2,7 +2,8 @@
 
 ## 📋 Übersicht
 
-Das Backend von tauschBar ist eine Node.js/Express REST API mit MongoDB als Datenbank. Es verwaltet Benutzer, Einträge, Nachrichten und bietet eine intelligente Matching-Funktion.
+Das Backend von tauschBar ist eine Node.js/Express REST API mit MongoDB als Datenbank. 
+Es verwaltet Benutzer, Einträge, Nachrichten und bietet eine intelligente Matching-Funktion.
 
 ## 🏗️ Architektur
 
