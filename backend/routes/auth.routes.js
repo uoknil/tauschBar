@@ -156,7 +156,7 @@ router.get('/me', requireAuth, async (req, res) => {
     // User anhand der ID aus dem JWT laden
     const user = await User.findById(req.user.userId)
       // sensible Felder bewusst ausschließen
-      .select('username email address zip profilePicture warnings isBanned');
+      .select('username email address zip profilePicture warnings isBanned createdAt');
 
     // Falls User nicht existiert (sollte eigentlich nicht passieren)
     if (!user) {

@@ -609,7 +609,7 @@
       submitBtn.textContent = '⏳ Wird erstellt...';
 
       try {
-        const res = await fetch('/entries', {
+        const res = await fetch('http://localhost:3000/entries', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

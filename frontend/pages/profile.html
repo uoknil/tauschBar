@@ -610,7 +610,7 @@
     try {
       // 👉 Profil-Daten des eingeloggten Users laden
       // Backend-Endpoint: GET /auth/me
-      const response = await fetch('/auth/me', {
+      const response = await fetch('http://localhost:3000/auth/me', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -684,7 +684,7 @@
 
       if (pictureUrl) {
         const img = document.createElement('img');
-        img.src = pictureUrl;
+        img.src = `http://localhost:3000${pictureUrl}`;
         img.alt = 'Profilbild';
 
         avatarLarge.insertBefore(img, avatarLarge.firstChild);
@@ -750,7 +750,7 @@
       }
 
       try {
-        const response = await fetch('/auth/profile', {
+        const response = await fetch('http://localhost:3000/auth/profile', {
           method: 'PATCH',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -873,7 +873,7 @@
         uploadBtn.disabled = true;
         uploadBtn.textContent = '⏳ Wird hochgeladen...';
 
-        const response = await fetch('/auth/profile/picture', {
+        const response = await fetch('http://localhost:3000/auth/profile/picture', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -924,7 +924,7 @@
         deletePictureBtn.disabled = true;
         deletePictureBtn.textContent = '⏳ Wird gelöscht...';
 
-        const response = await fetch('/auth/profile/picture', {
+        const response = await fetch('http://localhost:3000/auth/profile/picture', {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
