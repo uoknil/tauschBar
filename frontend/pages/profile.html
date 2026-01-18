@@ -604,6 +604,9 @@
     // Set avatar initial
     const initial = username.charAt(0).toUpperCase();
     avatarInitial.textContent = initial;
+    
+    // Set initial username display (will be updated by API)
+    profileUsername.textContent = username;
 
     // Load user profile data
     async function loadProfile() {
@@ -686,12 +689,25 @@
         const img = document.createElement('img');
         img.src = `http://localhost:3000${pictureUrl}`;
         img.alt = 'Profilbild';
+        
+        // Handle image load errors (404, etc.)
+        img.onerror = function() {
+          console.error('Failed to load profile picture:', pictureUrl);
+          // Remove broken image and show initial
+          img.remove();
+          avatarInitial.style.display = 'block';
+          avatarLarge.style.background = 'rgba(255,255,255,0.2)';
+          currentPictureActions.style.display = 'none';
+        };
+        
+        img.onload = function() {
+          console.log('Profile picture loaded successfully');
+          avatarInitial.style.display = 'none';
+          avatarLarge.style.background = 'none';
+          currentPictureActions.style.display = 'block';
+        };
 
         avatarLarge.insertBefore(img, avatarLarge.firstChild);
-        avatarInitial.style.display = 'none';
-
-        avatarLarge.style.background = 'none'; 
-        currentPictureActions.style.display = 'block';
       } else {
         avatarInitial.style.display = 'block';
 

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Profile Debug</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+    .success { background: #d4edda; border-color: #c3e6cb; }
+    .error { background: #f8d7da; border-color: #f5c6cb; }
+    .info { background: #d1ecf1; border-color: #bee5eb; }
+    button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Profile Debug Tool</h1>
+  
+  <div class="section info">
+    <h2>1. LocalStorage Check</h2>
+    <div id="localStorageCheck"></div>
+    <button onclick="showLocalStorage()">🔄 Refresh LocalStorage</button>
+  </div>
+
+  <div class="section">
+    <h2>2. Quick Login (test/test123)</h2>
+    <button onclick="quickLogin()">🔐 Login as Test User</button>
+    <div id="loginResult"></div>
+  </div>
+
+  <div class="section">
+    <h2>3. Test /auth/me Endpoint</h2>
+    <button onclick="testAuthMe()">📡 Test /auth/me</button>
+    <div id="authMeResult"></div>
+  </div>
+
+  <div class="section">
+    <h2>4. Upload Profile Picture</h2>
+    <input type="file" id="fileInput" accept="image/*">
+    <button onclick="uploadPicture()">⬆️ Upload</button>
+    <div id="uploadResult"></div>
+  </div>
+
+  <script>
+    function showLocalStorage() {
+      const token = localStorage.getItem('token');
+      const username = localStorage.getItem('username');
+      const output = document.getElementById('localStorageCheck');
+      
+      if (!token || !username) {
+        output.innerHTML = '<p class="error">❌ Kein Token oder Username im LocalStorage!</p>';
+        output.innerHTML += '<p>Token: ' + (token ? '✓ vorhanden' : '✗ fehlt') + '</p>';
+        output.innerHTML += '<p>Username: ' + (username ? '✓ vorhanden (' + username + ')' : '✗ fehlt') + '</p>';
+      } else {
+        output.innerHTML = '<p class="success">✅ Token und Username vorhanden</p>';
+        output.innerHTML += '<p>Username: ' + username + '</p>';
+        output.innerHTML += '<p>Token (first 50 chars): ' + token.substring(0, 50) + '...</p>';
+        
+        // Decode JWT to check expiry
+        try {
+          const parts = token.split('.');
+          const payload = JSON.parse(atob(parts[1]));
+          const exp = new Date(payload.exp * 1000);
+          const now = new Date();
+          
+          output.innerHTML += '<p>Token expires: ' + exp.toLocaleString() + '</p>';
+          
+          if (exp < now) {
+            output.innerHTML += '<p class="error">⚠️ Token ist abgelaufen!</p>';
+          } else {
+            output.innerHTML += '<p class="success">✅ Token ist noch gültig</p>';
+          }
+        } catch (e) {
+          output.innerHTML += '<p class="error">⚠️ Fehler beim Token-Parsing: ' + e.message + '</p>';
+        }
+      }
+    }
+
+    async function quickLogin() {
+      const output = document.getElementById('loginResult');
+      output.innerHTML = '<p>⏳ Logging in...</p>';
+      
+      try {
+        const response = await fetch('http://localhost:3000/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            usernameOrEmail: 'test',
+            password: 'test123'
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Login failed: ' + response.status);
+        }
+        
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username);
+        
+        output.innerHTML = '<p class="success">✅ Login erfolgreich!</p>';
+        output.innerHTML += '<p>Username: ' + data.username + '</p>';
+        showLocalStorage();
+        
+      } catch (error) {
+        output.innerHTML = '<p class="error">❌ Login fehlgeschlagen: ' + error.message + '</p>';
+      }
+    }
+
+    async function testAuthMe() {
+      const token = localStorage.getItem('token');
+      const output = document.getElementById('authMeResult');
+      
+      if (!token) {
+        output.innerHTML = '<p class="error">❌ Kein Token! Bitte erst einloggen.</p>';
+        return;
+      }
+      
+      output.innerHTML = '<p>⏳ Testing /auth/me...</p>';
+      
+      try {
+        const response = await fetch('http://localhost:3000/auth/me', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        output.innerHTML += '<p>Status: ' + response.status + '</p>';
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error('Failed: ' + errorText);
+        }
+        
+        const data = await response.json();
+        output.innerHTML = '<p class="success">✅ /auth/me funktioniert!</p>';
+        output.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        
+        if (data.profilePicture) {
+          output.innerHTML += '<p>Profilbild:</p>';
+          output.innerHTML += '<img src="http://localhost:3000' + data.profilePicture + '" style="max-width: 200px; border: 2px solid #ccc; border-radius: 8px;" />';
+        } else {
+          output.innerHTML += '<p>⚠️ Kein Profilbild gesetzt</p>';
+        }
+        
+      } catch (error) {
+        output.innerHTML = '<p class="error">❌ Fehler: ' + error.message + '</p>';
+      }
+    }
+
+    async function uploadPicture() {
+      const token = localStorage.getItem('token');
+      const fileInput = document.getElementById('fileInput');
+      const output = document.getElementById('uploadResult');
+      
+      if (!token) {
+        output.innerHTML = '<p class="error">❌ Kein Token! Bitte erst einloggen.</p>';
+        return;
+      }
+      
+      if (!fileInput.files[0]) {
+        output.innerHTML = '<p class="error">❌ Bitte Datei auswählen!</p>';
+        return;
+      }
+      
+      const formData = new FormData();
+      formData.append('profilePicture', fileInput.files[0]);
+      
+      output.innerHTML = '<p>⏳ Uploading...</p>';
+      
+      try {
+        const response = await fetch('http://localhost:3000/auth/profile/picture', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Upload failed');
+        }
+        
+        const data = await response.json();
+        output.innerHTML = '<p class="success">✅ Upload erfolgreich!</p>';
+        output.innerHTML += '<p>Pfad: ' + data.profilePicture + '</p>';
+        output.innerHTML += '<img src="http://localhost:3000' + data.profilePicture + '" style="max-width: 200px; border: 2px solid #ccc; border-radius: 8px;" />';
+        
+        // Re-test auth/me to see updated profile
+        setTimeout(testAuthMe, 500);
+        
+      } catch (error) {
+        output.innerHTML = '<p class="error">❌ Upload fehlgeschlagen: ' + error.message + '</p>';
+      }
+    }
+
+    // Initialize on load
+    showLocalStorage();
+  </script>
+</body>
+</html>
