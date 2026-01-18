@@ -3,3 +3,11 @@ node_modules
 backend/node_modules
 backend/.env
 .DS_Store
+
+# Uploads (User-generierte Inhalte)
+backend/uploads/profile-pictures/*.jpg
+backend/uploads/profile-pictures/*.png
+backend/uploads/profile-pictures/*.jpeg
+
+# Aber behalte den Ordner
+!backend/uploads/profile-pictures/.gitkeep
