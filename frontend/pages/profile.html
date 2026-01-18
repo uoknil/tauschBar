@@ -666,6 +666,10 @@
       viewAddress.value = data.address || '';
       viewZip.value = data.zip || '';
 
+      // WICHTIG: Profilbild beim Laden anzeigen
+      updateProfilePicture(data.profilePicture);
+
+
     } catch (error) {
       console.error('Error loading profile:', error);
       showError('Fehler beim Laden des Profils');
@@ -675,32 +679,23 @@
 
     // Update profile picture display
     function updateProfilePicture(pictureUrl) {
+      const existingImg = avatarLarge.querySelector('img');
+      if (existingImg) existingImg.remove();
+
       if (pictureUrl) {
-        // Show image
         const img = document.createElement('img');
         img.src = pictureUrl;
         img.alt = 'Profilbild';
-        
-        // Clear existing content
-        const existingImg = avatarLarge.querySelector('img');
-        if (existingImg) {
-          existingImg.remove();
-        }
-        
+
         avatarLarge.insertBefore(img, avatarLarge.firstChild);
         avatarInitial.style.display = 'none';
-        
-        // Show delete button
+
+        avatarLarge.style.background = 'none'; 
         currentPictureActions.style.display = 'block';
       } else {
-        // Show initial
-        const existingImg = avatarLarge.querySelector('img');
-        if (existingImg) {
-          existingImg.remove();
-        }
         avatarInitial.style.display = 'block';
-        
-        // Hide delete button
+
+        avatarLarge.style.background = 'rgba(255,255,255,0.2)'; // ZURÜCKSETZEN
         currentPictureActions.style.display = 'none';
       }
     }

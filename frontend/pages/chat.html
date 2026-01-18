@@ -505,8 +505,9 @@
             const entryTitle = conv.entry
               ? conv.entry.title
               : '(Eintrag gelöscht)';
+
             const lastMsgTime = new Date(
-              conv.lastMessage.createdAt,
+              conv.lastMessage.createdAt
             ).toLocaleString('de-DE', {
               day: '2-digit',
               month: '2-digit',
@@ -514,14 +515,27 @@
               minute: '2-digit',
             });
 
+            // NEU: Avatar oder Initiale
+            const avatar = conv.partner.profilePicture
+              ? `<img src="${conv.partner.profilePicture}"
+                      alt="Profilbild"
+                      style="width:44px;height:44px;border-radius:50%;object-fit:cover;">`
+              : `<div class="conversation-avatar">
+                  ${conv.partner.username.charAt(0).toUpperCase()}
+                </div>`;
+
+            // NEUE Struktur
             li.innerHTML = `
-            <div class="conversation-partner">
-              ${conv.partner.username} ${unreadBadge}
-            </div>
-            <div class="conversation-entry">📦 ${entryTitle}</div>
-            <div class="conversation-preview">${conv.lastMessage.content}</div>
-            <div class="conversation-time">${lastMsgTime}</div>
-          `;
+              ${avatar}
+              <div class="conversation-info">
+                <div class="conversation-partner">
+                  ${conv.partner.username} ${unreadBadge}
+                </div>
+                <div class="conversation-entry">📦 ${entryTitle}</div>
+                <div class="conversation-preview">${conv.lastMessage.content}</div>
+                <div class="conversation-time">${lastMsgTime}</div>
+              </div>
+            `;
 
             li.addEventListener('click', () => {
               openConversation(

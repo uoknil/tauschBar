@@ -62,8 +62,8 @@ router.post('/', requireAuth, async (req, res) => {
 
     // Populieren für Response
     const populated = await Message.findById(message._id)
-      .populate('sender', 'username')
-      .populate('receiver', 'username');
+      .populate('sender', 'username profilePicture')
+      .populate('receiver', 'username profilePicture')
 
     res.status(201).json(populated);
   } catch (err) {
@@ -84,8 +84,8 @@ router.get('/conversations', requireAuth, async (req, res) => {
     const messages = await Message.find({
       $or: [{ sender: userId }, { receiver: userId }]
     })
-      .populate('sender', 'username')
-      .populate('receiver', 'username')
+      .populate('sender', 'username profilePicture')
+      .populate('receiver', 'username profilePicture')
       .populate('entryId', 'title category')
       .sort({ createdAt: -1 });
 
@@ -112,7 +112,8 @@ router.get('/conversations', requireAuth, async (req, res) => {
           conversationKey: key,
           partner: {
             _id: partner._id,
-            username: partner.username
+            username: partner.username,
+            profilePicture: partner.profilePicture
           },
           entry: msg.entryId ? {
             _id: msg.entryId._id,
@@ -153,8 +154,8 @@ router.get('/conversation/:visavisId/:entryId', requireAuth, async (req, res) =>
     const conversationKey = Message.createConversationKey(userId, visavisId, entryId);
 
     const messages = await Message.find({ conversationKey })
-      .populate('sender', 'username')
-      .populate('receiver', 'username')
+      .populate('sender', 'username profilePicture')
+      .populate('receiver', 'username profilePicture')
       .sort({ createdAt: 1 }); // Älteste zuerst
 
     // Als gelesen markieren (Nachrichten, die AN mich gingen)
