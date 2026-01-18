@@ -4,8 +4,34 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
+router.get('/__test', (req, res) => {
+  res.send('AUTH ROUTES AKTIV');
+});
+
 const User = require('../models/User');
 const { requireAuth } = require('../middleware/auth');
+
+const multer = require('multer');
+const path = require('path');
+
+// ===============================
+// Multer Konfiguration (Profilbild)
+// ===============================
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `user-${req.user.userId}-${Date.now()}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5 MB
+});
+
 
 // POST /auth/register
 router.post('/register', async (req, res) => {
@@ -142,6 +168,47 @@ router.get('/me', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('GET /auth/me ERROR:', err);
     res.status(500).json({ message: 'Profil konnte nicht geladen werden.' });
+  }
+});
+
+// POST /auth/profile/picture
+router.post(
+  '/profile/picture',
+  requireAuth,
+  upload.single('profilePicture'),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'Kein Bild hochgeladen.' });
+      }
+
+      const imagePath = `/uploads/${req.file.filename}`;
+
+      const user = await User.findByIdAndUpdate(
+        req.user.userId,
+        { profilePicture: imagePath },
+        { new: true }
+      ).select('profilePicture');
+
+      res.json({ profilePicture: user.profilePicture });
+    } catch (err) {
+      console.error('UPLOAD PROFILE PICTURE ERROR:', err);
+      res.status(500).json({ message: 'Profilbild-Upload fehlgeschlagen.' });
+    }
+  }
+);
+
+// DELETE /auth/profile/picture
+router.delete('/profile/picture', requireAuth, async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.user.userId, {
+      profilePicture: null
+    });
+
+    res.json({ message: 'Profilbild gelöscht.' });
+  } catch (err) {
+    console.error('DELETE PROFILE PICTURE ERROR:', err);
+    res.status(500).json({ message: 'Profilbild konnte nicht gelöscht werden.' });
   }
 });
 

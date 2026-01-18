@@ -666,9 +666,6 @@
       viewAddress.value = data.address || '';
       viewZip.value = data.zip || '';
 
-      // Profilbild
-      updateProfilePicture(data.profilePicture);
-
     } catch (error) {
       console.error('Error loading profile:', error);
       showError('Fehler beim Laden des Profils');
@@ -889,15 +886,22 @@
           body: formData
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Upload fehlgeschlagen');
+        let data = null;
+
+        const contentType = response.headers.get('content-type');
+
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
         }
 
-        const data = await response.json();
-        
-        // Update avatar
-        updateProfilePicture(data.profilePicture);
+        if (!response.ok) {
+          throw new Error(data?.message || 'Upload fehlgeschlagen');
+        }
+
+        // Update avatar nur wenn Backend ein Bild zurückschickt
+        if (data && data.profilePicture) {
+          updateProfilePicture(data.profilePicture);
+        }
         
         // Clear preview
         selectedFile = null;
@@ -933,9 +937,16 @@
           }
         });
 
+        let data = null;
+
+        const contentType = response.headers.get('content-type');
+
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+        }
+
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Löschen fehlgeschlagen');
+          throw new Error(data?.message || 'Löschen fehlgeschlagen');
         }
 
         // Update avatar to show initial

@@ -5,6 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const { connectDB } = require('./db');
 
+
 dotenv.config();
 
 const app = express();
@@ -30,7 +31,7 @@ app.use(
 
 // Test-Route
 app.get('/api', (req, res) => {
-  res.send('tauschBar API läuft 🚀');
+  res.send('tauschBar API läuft');
 });
 
 // Routes
